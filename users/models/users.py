@@ -12,18 +12,25 @@ class Role(BaseTypeModel):
 
 
 class User(AbstractUser):
+    username=models.CharField(
+        unique=True,
+        max_length=20
+    )
+    first_name=models.CharField(
+        max_length=20,
+    )
+    last_name=models.CharField(
+        max_length=20
+    )
     phone_number=PhoneNumberField(
         unique=True,
-        null=True,
     )
     user_photo=models.ImageField(
         blank=True,
         null=True,
         upload_to='media/'
     )
-    user_dob=models.DateField(
-        null=True,
-    )
+    user_dob=models.DateField()
     email=models.EmailField(
         unique=True,
     )
@@ -37,7 +44,7 @@ class User(AbstractUser):
     # objects=BaseUserManager()
 
     def __str__(self):
-        return self.first_name
+        return self.username
 
     class Meta:
         verbose_name='Пользователь'

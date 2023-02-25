@@ -15,9 +15,8 @@ class Driver(models.Model):
         on_delete=models.CASCADE,
     )
     is_active=models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.category.title
+    card_id=models.CharField(max_length=20)
+    registration_number=models.CharField(max_length=20)
 
     class Meta:
         verbose_name='Водитель'

@@ -32,21 +32,21 @@ class RoleAdmin(admin.ModelAdmin):
 class UserAdmin(UserAdmin):
     change_user_password_template = None
     fieldsets = (
-        (None, {'fields': ('phone_number', 'email', )}),
+        (None, {'fields': ('phone_number', 'email', 'user_dob',)}),
         (_('Личная информация'),
          {'fields': ('first_name', 'last_name',)}),
         (_('Permissions'), {
-            'fields': ('is_active', 'is_staff', 'role',  'is_superuser', 'groups', 'user_permissions'),
+            'fields': ('is_active', 'is_staff', 'role',  'is_superuser', 'groups', 'user_permissions',),
         }),
         (_('Important dates'), {'fields': ('last_login',)}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'phone_number', 'role', 'password1', 'password2',),
+            'fields': ('email', 'phone_number', 'role', 'password1', 'password2','username','user_dob'),
         }),
     )
-    list_display = ('id', 'email', 'phone_number', 'role','first_name','last_name','user_dob','role' )
+    list_display = ('id', 'email', 'phone_number', 'role','first_name','last_name','user_dob','username' )
 
     list_display_links = ('id',)
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups',)

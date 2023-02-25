@@ -53,6 +53,8 @@ class DriverAdmin(admin.ModelAdmin):
         'user',
         'category',
         'is_active',
+        'card_id',
+        'registration_number',
     )
     list_display_links=(
         'user',
