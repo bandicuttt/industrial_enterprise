@@ -36,12 +36,11 @@ class TransportUnitAdmin(admin.ModelAdmin):
         'id',
         'carrying_capacity',
         'make',
-        'registration_number',
         'delivery_price',
         'license_category',
     )
     list_display_links=(
-        'registration_number',
+        'id',
     )
     ordering=(
         '-id',
@@ -54,7 +53,6 @@ class DriverAdmin(admin.ModelAdmin):
         'category',
         'is_active',
         'card_id',
-        'registration_number',
     )
     list_display_links=(
         'user',

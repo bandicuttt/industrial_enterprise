@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,800" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="css/auth.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+    <script type="text/javascript" src="js/auth.js"></script>
+</head>
+<body>
+<section>
+  <div class="container">
+    <div class="form sign-in-form">
+      <div class="wrapper">
+        <form action="#">
+          <h1>Войти</h1>
+          <p>используйте свой email для входа</p>
+          <input type="email" placeholder="Email">
+          <input type="password" placeholder="Пароль">
+          <button>Войти</button>
+        </form>
+      </div>
+    </div>
+    <div class="form sign-up-form active">
+      <div class="wrapper">
+          <!-- > Отображение доп информации при основной регистрации<!-->
+        <form action="#" class='main_user_info_form'>
+          <h1>Регистрация    </h1>
+          <p>Пожалуйста, вводите действительную информацию</p>
+          <p id="error-message"></p>
+          <div class='checkbox'>
+            <input type="radio" id="driver"
+             name="contact" value="3">
+            <label for="contactChoice1">Я водитель</label>
+
+            <input type="radio" id="buyer"
+             name="contact" value="2">
+            <label for="contactChoice2">Я покупатель</label>
+          </div>
+          <input name='name' type="text" placeholder="Имя пользователя">
+          <input name='email_input' type="email" placeholder="Email">
+          <input name='pass_input' type="password" placeholder="Пароль">
+          <input name='repass_input' type="password" placeholder="Повторите пароль">
+          <button id="continue_button">Продолжить</button>
+        </form>
+        <!-- > Отображение доп информации при регистрации водителя<!-->
+        <form action="#" class='initial_driver_info_form'>
+          <h1>Регистрация    </h1>
+          <p id="error-message-driver"></p>
+<!--           <label classs='dob_label'>
+            <p>Ваша дата рождения:</p>
+           <input type="date" name='dob' />
+          </label> -->
+          <input name='dob_driver' type="date" />
+          <input name='first_name_driver' type="text" placeholder="Имя">
+          <input name='last_name_driver' type="text" placeholder="Фамилия">
+          <input name='phone_num_driver' type="phone" placeholder="Телефон">
+          <input name='card_id_driver' type="text" placeholder="Серия и номер паспорта">
+          <label>Категория прав</label>
+          <select id='drvier_select_category'>
+              <option>Не выбрано</option>
+			  <option>A</option>
+			  <option>B</option>
+			  <option>C</option>
+		  </select>
+          <button id="create_driver_account">Создать аккаунт</button>
+        </form>
+        <!-- > Отображение доп информации при регистрации пользователя<!-->
+        <form action="#" class='initial_user_info_form'>
+          <h1>Регистрация    </h1>
+          <p id="error-message-user"></p>
+<!--           <label classs='dob_label'>
+            <p>Ваша дата рождения:</p>
+           <input type="date" name='dob' />
+          </label> -->
+          <input type="date" name='dob_user' />
+          <input name='first_name_user' type="text" placeholder="Имя">
+          <input name='last_name_user' type="text" placeholder="Фамилия">
+          <input name='phone_num_user' type="phone" placeholder="Телефон">
+          <button id="create_user_account">Создать аккаунт</button>
+        </form>
+
+
+      </div>
+    </div>
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-left">
+          <h1>Создать аккаунт</h1>
+          <p>или</p>
+          <button id="signInButton">Войти</button>
+        </div>
+        <div class="overlay-right">
+          <h1>Пожалуйста, авторизируйтесь</h1>
+          <p>или</p>
+          <button id="signUpButton">Создайте аккаунт</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

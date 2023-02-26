@@ -16,7 +16,6 @@ class Driver(models.Model):
     )
     is_active=models.BooleanField(default=False)
     card_id=models.CharField(max_length=20)
-    registration_number=models.CharField(max_length=20)
 
     class Meta:
         verbose_name='Водитель'
