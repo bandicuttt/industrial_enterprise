@@ -13,6 +13,7 @@ class RoleShortSerializer(serializers.ModelSerializer):
 class UserShortSerializer(serializers.ModelSerializer):
     
     role = RoleShortSerializer()
+    date_joined = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = User
@@ -26,6 +27,8 @@ class UserShortSerializer(serializers.ModelSerializer):
             'user_dob',
             'email',
             'role',
+            'date_joined',
+            'is_active',
         ) 
 
 class UserShortUpdateSerializer(serializers.ModelSerializer):

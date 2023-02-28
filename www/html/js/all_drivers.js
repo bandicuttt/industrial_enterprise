@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
       XLSX.writeFile(workbook, filename);
     }
     
-    fetch('http://127.0.0.1:8000/api/profile/get_drivers/', {
+    fetch('http://127.0.0.1:8000/api/drivers/?is_active=True', {
       headers: {
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NjE2NDgyLCJqdGkiOiI2YTkwNWE0M2M1ZGE0MjlmODg4NjhkNTM3ZWY2ZmVhYiIsInVzZXJfaWQiOjF9.uGqF50kZXyS6_TT8uadxavPSw5OC3TmBF8vFvHOWhcs`
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NzAzNTM1LCJqdGkiOiJmNzEyZThkMGQwMmY0Y2QwOTcyYTY0N2E4Nzg5MTExYiIsInVzZXJfaWQiOjF9.HtxyWPdK_fWSfHPmJRS5iPfsGVbfklOzu1H8TQ6wmVs`
       }
     })
       .then(response => response.json())
@@ -77,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
             return;
     } else {
-    fetch('http://127.0.0.1:8000/api/profile/get_drivers/', {
+    fetch('http://127.0.0.1:8000/api/drivers/?is_active=True', {
       headers: {
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NjE2NDgyLCJqdGkiOiI2YTkwNWE0M2M1ZGE0MjlmODg4NjhkNTM3ZWY2ZmVhYiIsInVzZXJfaWQiOjF9.uGqF50kZXyS6_TT8uadxavPSw5OC3TmBF8vFvHOWhcs`
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NzAzNTM1LCJqdGkiOiJmNzEyZThkMGQwMmY0Y2QwOTcyYTY0N2E4Nzg5MTExYiIsInVzZXJfaWQiOjF9.HtxyWPdK_fWSfHPmJRS5iPfsGVbfklOzu1H8TQ6wmVs`
       }
     })
     .then(response => response.json())
@@ -168,9 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }});
 
   // Make API request with token
-  fetch('http://127.0.0.1:8000/api/profile/get_drivers/', {
+  fetch('http://127.0.0.1:8000/api/drivers/?is_active=True', {
     headers: {
-      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NjE2NDgyLCJqdGkiOiI2YTkwNWE0M2M1ZGE0MjlmODg4NjhkNTM3ZWY2ZmVhYiIsInVzZXJfaWQiOjF9.uGqF50kZXyS6_TT8uadxavPSw5OC3TmBF8vFvHOWhcs`
+      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NzAzNTM1LCJqdGkiOiJmNzEyZThkMGQwMmY0Y2QwOTcyYTY0N2E4Nzg5MTExYiIsInVzZXJfaWQiOjF9.HtxyWPdK_fWSfHPmJRS5iPfsGVbfklOzu1H8TQ6wmVs`
     }
   })
   .then(response => {
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // loop through the driver data and extract the DOB information
     data.forEach(driver => {
-      const dob = new Date(driver.user.user_dob).toLocaleDateString();
+      const dob = new Date(driver.user.date_joined).toLocaleDateString();
       if (dob in dobCounts) {
         dobCounts[dob]++;
       } else {
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Водители/Дата рождения',
+          label: 'Водители/Дата регистрации ',
           data: counts,
           backgroundColor: 'rgba(54, 162, 235, 0.2)',
           borderColor: 'rgba(54, 162, 235, 1)',
@@ -228,16 +228,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Loop through the data and create a div element for each item
       users.forEach(user => {
+        console.log(user.user.user_photo)
         const div = document.createElement('div');
         div.setAttribute('class', 'col-lg-4');
         const count = document.querySelector('.count_drivers')
         count.setAttribute('placeholder', 'Найдено: '+data.length);
           
         // Populate the div element with relevant data
+        if (user.user.user_photo == null) {
+          var user_photo = 'https://bootdey.com/img/Content/avatar/avatar2.png'
+        } else {
+          var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
+        };
         div.innerHTML = `
             <div class="text-center card-box">
                 <div class="member-card pt-2 pb-2">
-                    <div class="thumb-lg member-thumb mx-auto"><img src="https://bootdey.com/img/Content/avatar/avatar2.png" class="rounded-circle img-thumbnail" alt="profile-image"></div>
+                    <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
                     <div class="">
                         <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
                         <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>

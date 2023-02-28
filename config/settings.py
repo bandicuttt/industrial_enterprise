@@ -28,7 +28,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'djoser',
-    'corsheaders'
+    'corsheaders',
+    'django_filters'
 ]
 
 # apps

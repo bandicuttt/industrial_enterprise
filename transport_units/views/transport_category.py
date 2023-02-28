@@ -14,3 +14,4 @@ class TransportCategoryView(generics.ListAPIView):
     permission_classes = [
         AllowAny
     ]
+

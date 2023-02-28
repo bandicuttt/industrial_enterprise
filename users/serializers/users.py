@@ -8,12 +8,11 @@ from transport_units.serializers.nested import TransportCategoryShortSerializer
 from crum import get_current_user
 from django.db import transaction
 from transport_units.models.tranport_categories import TransportCategory
-from .nested import UserShortSerializer, UserShortUpdateSerializer
+from .nested import RoleShortSerializer, UserShortSerializer, UserShortUpdateSerializer
 from phonenumber_field.modelfields import PhoneNumberField
 
 
-User = get_user_model()
-    
+User = get_user_model()   
 
 class RetrieveDriverSerializer(serializers.ModelSerializer):
 
@@ -23,6 +22,27 @@ class RetrieveDriverSerializer(serializers.ModelSerializer):
     class Meta:
         model = Driver
         fields = '__all__'
+
+
+class MeSerializer(serializers.ModelSerializer):
+    role = RoleShortSerializer()
+    # driver = serializers.CharField(source='user.driver')
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'last_login',
+            'date_joined',
+            'username',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'user_photo',
+            'user_dob',
+            'email',
+            'role',
+        )
 
 
 class UpdateDriverSerializer(serializers.ModelSerializer):

@@ -1,7 +1,8 @@
 from json import loads
 import json
 from rest_framework import generics
-from users.serializers.users import (RegisterSerializer, RegisterDriverSerializer,
+from transport_units.serializers.drivers import DriverListSerializer
+from users.serializers.users import (MeSerializer, RegisterSerializer, RegisterDriverSerializer,
                                         RetrieveDriverSerializer, UpdateDriverSerializer, RegisterCustomerSerializer)
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.permissions import AllowAny
@@ -56,30 +57,37 @@ class RegisterCustomerView(generics.CreateAPIView):
 )
 class DriverProfileView(generics.RetrieveUpdateAPIView):
     
-    queryset = Driver.objects.select_related('user').all()
+    queryset = User.objects.all()
     serializer_class = UpdateDriverSerializer
 
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
         user = get_current_user()
-        obj = queryset.get(user=user)
-        self.check_object_permissions(self.request, obj)
+        if user.role.title == 'Водитель':
+            obj = queryset.get(user=user)
+        else:
+            obj = queryset.get(id=user.id)
+            self.check_object_permissions(self.request, obj)
         return obj
 
     def get_serializer_class(self):
+        user = get_current_user()
+
         if self.request.method in ['PUT', 'PATCH']:
             return UpdateDriverSerializer
-        return RetrieveDriverSerializer
+        
+        if user.role.title == 'Водитель':
+            return RetrieveDriverSerializer
 
-@extend_schema_view(
-    get=extend_schema(summary='Получить всех водителей', tags=['Вводитель']),
-)
-class GetAllDriversView(generics.RetrieveUpdateAPIView):
-
-    def get(self, request):
-        queryset = Driver.objects.all()
-        serializer_for_queryset = RetrieveDriverSerializer(
-            instance=queryset, # Передаём набор записей
-            many=True # Указываем, что на вход подаётся именно набор записей
-        )
-        return Response(serializer_for_queryset.data)
+        return MeSerializer
+    
+    def get_queryset(self):
+        user = get_current_user()
+        print(user.role.title)
+        
+        if user.role.title == 'Водитель':
+            queryset = Driver.objects.all()
+            print(queryset)
+        else:
+            queryset = User.objects.all()
+        return queryset
