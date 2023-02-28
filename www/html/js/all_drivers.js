@@ -1,6 +1,69 @@
 // Execute code when the DOM content has been loaded
 document.addEventListener('DOMContentLoaded', () => {
-  const searchButton = document.querySelector('.btn.btn-primary');
+  const searchButton = document.querySelector('#search_drivers');
+  const downloadButton = document.querySelector('#download_drivers');
+  downloadButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    function formatDate() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      const day = now.getDate();
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const formattedDate = `${day}:${month}:${year}-${hour}:${minute}`;
+      return formattedDate;
+    }
+
+    function transformUser(input) {
+      const output = {};
+      
+      output.id = input.id;
+      output.username = input.user.username;
+      output.first_name = input.user.first_name;
+      output.last_name = input.user.last_name;
+      output.phone_number = input.user.phone_number;
+      output.user_photo = input.user.user_photo;
+      output.user_dob = input.user.user_dob;
+      output.email = input.user.email;
+      output.title = input.user.role.title;
+      output.is_active = input.is_active;
+      output.card_id = input.card_id;
+      
+      return output;
+    }
+    
+    function downloadExcelFile(data) {
+      const formattedDate = formatDate();
+      const filename = `${formattedDate}.xlsx`;
+      
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
+      XLSX.writeFile(workbook, filename);
+    }
+    
+    fetch('http://127.0.0.1:8000/api/profile/get_drivers/', {
+      headers: {
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NjE2NDgyLCJqdGkiOiI2YTkwNWE0M2M1ZGE0MjlmODg4NjhkNTM3ZWY2ZmVhYiIsInVzZXJfaWQiOjF9.uGqF50kZXyS6_TT8uadxavPSw5OC3TmBF8vFvHOWhcs`
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        const transformedUsers = [];
+
+        for (const user of data) {
+          const transformedUser = transformUser(user);
+          transformedUsers.push(transformedUser);
+        }
+
+        console.log(transformedUsers);
+        downloadExcelFile(transformedUsers);
+      })
+      .catch(error => {
+        console.error(error);
+            });
+        });
   searchButton.addEventListener('click', (event) => {
     event.preventDefault(); // Prevent the form from submitting
 
@@ -69,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       <div class="">
                           <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
                           <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                          <p class="text-muted">Phone <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
+                          <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
                       </div>
                       <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}">Профиль</button>
                       <div class="mt-4">
@@ -178,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="">
                         <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
                         <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                        <p class="text-muted">Phone <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
+                        <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
                     </div>
                     <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}">Профиль</button>
                     <div class="mt-4">
@@ -210,7 +273,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Append the created div element to the parent element
         document.getElementById('user-container').appendChild(div);
       });
-    })
+      var graphsButton = document.getElementById('graphs');
+
+      // Attach a click event listener to the button
+      graphsButton.addEventListener('click', function() {
+        event.preventDefault(); 
+        // Find the canvas element by ID
+        var dobChart = document.getElementById('dob-chart');
+        dobChart.scrollIntoView({ behavior: 'smooth' });
+      });
+          })
     .catch(error => console.error(error));
     
 });
