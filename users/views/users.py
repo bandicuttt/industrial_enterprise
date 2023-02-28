@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 from transport_units.models.drivers import Driver
 from crum import get_current_user
+from rest_framework.response import Response
 
 
 User = get_user_model()
@@ -70,4 +71,15 @@ class DriverProfileView(generics.RetrieveUpdateAPIView):
             return UpdateDriverSerializer
         return RetrieveDriverSerializer
 
+@extend_schema_view(
+    get=extend_schema(summary='Получить всех водителей', tags=['Вводитель']),
+)
+class GetAllDriversView(generics.RetrieveUpdateAPIView):
 
+    def get(self, request):
+        queryset = Driver.objects.all()
+        serializer_for_queryset = RetrieveDriverSerializer(
+            instance=queryset, # Передаём набор записей
+            many=True # Указываем, что на вход подаётся именно набор записей
+        )
+        return Response(serializer_for_queryset.data)

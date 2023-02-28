@@ -1,62 +1,3 @@
-// window.onload = function() {
-      
-// }
-
-
-
-// // wait for the DOM to be loaded before accessing elementss
-// document.addEventListener("DOMContentLoaded", function() {
-  
-//   // get form elements
-//   const signUpForm = document.querySelector(".sign-up-form form");
-//   const nameInput = signUpForm.querySelector("input[type='text'][placeholder='Имя']");
-//   const emailInput = signUpForm.querySelector("input[type='text'][placeholder='Email']");
-//   const passwordInput = signUpForm.querySelector("input[type='password'][placeholder='Пароль']");
-//   const repeatPasswordInput = signUpForm.querySelector("input[type='password'][placeholder='Повторите пароль']");
-//   const driverRadioButton = signUpForm.querySelector("#driver");
-//   const buyerRadioButton = signUpForm.querySelector("#buyer");
-//   const errorMessage = signUpForm.querySelector("#error-message");
-//   const continueButton = signUpForm.querySelector("#continue_button");
-//   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//   const container = document.querySelector('.container');
-  
-//   // add event listener to the continue button
-//   continueButton.addEventListener("click", function(event) {
-//     event.preventDefault(); // prevent form submission
-    
-//     // validate fields
-//     if (nameInput.value.trim() === "" || emailInput.value.trim() === "" || passwordInput.value.trim() === "" || repeatPasswordInput.value.trim() === "" || (!driverRadioButton.checked && !buyerRadioButton.checked)) {
-//       showErrorMessage("Пожалуйста, заполните все поля",true);
-//       return;
-//     }
-    
-//     // validate passwords
-//     if (passwordInput.value !== repeatPasswordInput.value) {
-//       showErrorMessage("Пароли не совпадают",true);
-//       return;
-//     }
-//     if (!emailRegex.test(emailInput.value)) {
-//       showErrorMessage("Email введен неправильно!",true);
-//       return;
-//     }
-
-//   });
-
-  
-//   // define function to show error message
-//   function showErrorMessage(message, clear = false) {
-//     errorMessage.textContent = message;
-//     if (clear) {
-//       setTimeout(function() {
-//         errorMessage.textContent = "";
-//       }, 3000); // display message for 3 seconds
-//     }
-//     errorMessage.style.color = "red"; // set color to red
-//   }
-  
-// });
-
-
 $(document).ready(function() {
     const signIn = document.querySelector("#signInButton");
     const signUp = document.querySelector("#signUpButton");
@@ -164,6 +105,49 @@ $(document).ready(function() {
       return null; 
       }
     }
+  $('#sign_in_btn').click(function(e) {
+    e.preventDefault(); // prevent default form submission behavior
+    var formData = {
+      name: $('input[name="email_sign_in"]').val(),
+      password: $('input[name="password_sign_in"]').val(),
+    };
+    if (formData.email == '') {
+      $('#error-message-sign-in').text('Поле имя пользователя не может быть пустым!').css('color', 'red');
+      setTimeout(function() {
+        $('#error-message-sign-in').text('').css('color', '');
+      }, 3000);
+      return;
+    }
+
+    if (formData.password == '') {
+      $('#error-message-sign-in').text('Поле пароль не может быть пустым!').css('color', 'red');
+      setTimeout(function() {
+        $('#error-message-sign-in').text('').css('color', '');
+      }, 3000);
+      return;
+    }
+    $.ajax({
+      type: 'POST',
+      url: 'http://127.0.0.1:8000/api/auth/jwt/create/',
+      data: JSON.stringify({
+          'username': formData.name,
+          'password': formData.password,
+      }),
+      // data: JSON.stringify(formData.role,formData.name, formData.password),
+      contentType: 'application/json',
+      success: function(response) {
+        console.log(response)
+      },
+      error: function(response) {
+        $('#error-message-sign-in').text('Логин и пароль введены неверно!').css('color', 'red');
+      setTimeout(function() {
+        $('#error-message-sign-in').text('').css('color', '');
+      }, 3000);
+        return;
+      }
+
+    });
+  });
 
   $('#create_driver_account').click(function(e) {
       e.preventDefault(); // prevent default form submission behavior
@@ -427,6 +411,15 @@ $(document).ready(function() {
       }, 3000);
       return;
     }
+
+    if (formData.password == formData.email) {
+      $('#error-message').text('Введенный пароль не должен совпадать с email!').css('color', 'red');
+      setTimeout(function() {
+        $('#error-message').text('').css('color', '');
+      }, 3000);
+      return;
+    }
+
     localStorage.setItem('formData', JSON.stringify(formData));
     // Отправка на апи водитель
     $.ajax({
