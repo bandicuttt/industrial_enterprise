@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
       XLSX.writeFile(workbook, filename);
     }
     
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=True', {
+    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
       headers: {
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NzAzNTM1LCJqdGkiOiJmNzEyZThkMGQwMmY0Y2QwOTcyYTY0N2E4Nzg5MTExYiIsInVzZXJfaWQiOjF9.HtxyWPdK_fWSfHPmJRS5iPfsGVbfklOzu1H8TQ6wmVs`
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4MDU0NTA0LCJqdGkiOiJkYmM1MzA5NGEwYjM0Y2Q2OWEzZDJiNmFlNDMyMzQ2NSIsInVzZXJfaWQiOjF9.Yt8LVpQA0nGRIH4O9anULVRsaaEXJC7yy99g9j8sTuw`
       }
     })
       .then(response => response.json())
@@ -77,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
             return;
     } else {
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=True', {
+    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
       headers: {
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NzAzNTM1LCJqdGkiOiJmNzEyZThkMGQwMmY0Y2QwOTcyYTY0N2E4Nzg5MTExYiIsInVzZXJfaWQiOjF9.HtxyWPdK_fWSfHPmJRS5iPfsGVbfklOzu1H8TQ6wmVs`
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4MDU0NTA0LCJqdGkiOiJkYmM1MzA5NGEwYjM0Y2Q2OWEzZDJiNmFlNDMyMzQ2NSIsInVzZXJfaWQiOjF9.Yt8LVpQA0nGRIH4O9anULVRsaaEXJC7yy99g9j8sTuw`
       }
     })
     .then(response => response.json())
@@ -168,9 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }});
 
   // Make API request with token
-  fetch('http://127.0.0.1:8000/api/drivers/?is_active=True', {
+  fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
     headers: {
-      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NzAzNTM1LCJqdGkiOiJmNzEyZThkMGQwMmY0Y2QwOTcyYTY0N2E4Nzg5MTExYiIsInVzZXJfaWQiOjF9.HtxyWPdK_fWSfHPmJRS5iPfsGVbfklOzu1H8TQ6wmVs`
+      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4MDU0NTA0LCJqdGkiOiJkYmM1MzA5NGEwYjM0Y2Q2OWEzZDJiNmFlNDMyMzQ2NSIsInVzZXJfaWQiOjF9.Yt8LVpQA0nGRIH4O9anULVRsaaEXJC7yy99g9j8sTuw`
     }
   })
   .then(response => {

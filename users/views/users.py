@@ -1,15 +1,11 @@
-from json import loads
-import json
 from rest_framework import generics
-from transport_units.serializers.drivers import DriverListSerializer
-from users.serializers.users import (MeSerializer, RegisterSerializer, RegisterDriverSerializer,
-                                        RetrieveDriverSerializer, UpdateDriverSerializer, RegisterCustomerSerializer)
+from users.serializers.users import (RegisterSerializer, RegisterDriverSerializer,
+                                        RetrieveDriverSerializer, UpdateDriverSerializer, RegisterCustomerSerializer, UpdateUserProfileSerializer, UserSerializerMixin)
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 from transport_units.models.drivers import Driver
 from crum import get_current_user
-from rest_framework.response import Response
 
 
 User = get_user_model()
@@ -51,14 +47,24 @@ class RegisterCustomerView(generics.CreateAPIView):
 
 
 @extend_schema_view(
-    put=extend_schema(request=UpdateDriverSerializer, summary='Обновить профиль водителя', tags=['Вводитель']),
-    patch=extend_schema(request=UpdateDriverSerializer, summary='Обновить профиль водителя частично', tags=['Вводитель']),
-    get=extend_schema(summary='Посмотреть профиль водителя', tags=['Вводитель']),
+    get=extend_schema(summary='Посмотреть всех покупателей', tags=['Покупатели']),
 )
-class DriverProfileView(generics.RetrieveUpdateAPIView):
-    
+class GetAllCustomersView(generics.ListAPIView):
+
+    queryset = User.objects.filter(is_active=True, role__title='Покупатель')
+    serializer_class = UserSerializerMixin
+
+
+
+@extend_schema_view(
+    patch=extend_schema(request=UpdateDriverSerializer, summary='Обновить профиль частично', tags=['Профиль']),
+    get=extend_schema(summary='Посмотреть профиль', tags=['Профиль']),
+)
+class ProfileView(generics.RetrieveUpdateAPIView):
+
     queryset = User.objects.all()
     serializer_class = UpdateDriverSerializer
+    http_method_names = ['get','patch']
 
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
@@ -73,21 +79,19 @@ class DriverProfileView(generics.RetrieveUpdateAPIView):
     def get_serializer_class(self):
         user = get_current_user()
 
-        if self.request.method in ['PUT', 'PATCH']:
+        if self.request.method in ['PATCH']:
+            if user.role.title == 'Покупатель':
+                return UpdateUserProfileSerializer
             return UpdateDriverSerializer
         
         if user.role.title == 'Водитель':
             return RetrieveDriverSerializer
-
-        return MeSerializer
+        return UserSerializerMixin
     
     def get_queryset(self):
         user = get_current_user()
-        print(user.role.title)
-        
         if user.role.title == 'Водитель':
             queryset = Driver.objects.all()
-            print(queryset)
         else:
             queryset = User.objects.all()
         return queryset

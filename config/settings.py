@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'djoser',
     'corsheaders',
-    'django_filters'
+    'django_filters',
 ]
 
 # apps

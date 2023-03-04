@@ -12,22 +12,13 @@ from .nested import RoleShortSerializer, UserShortSerializer, UserShortUpdateSer
 from phonenumber_field.modelfields import PhoneNumberField
 
 
+
 User = get_user_model()   
 
-class RetrieveDriverSerializer(serializers.ModelSerializer):
 
-    user = UserShortSerializer()
-    category = TransportCategoryShortSerializer()
-
-    class Meta:
-        model = Driver
-        fields = '__all__'
-
-
-class MeSerializer(serializers.ModelSerializer):
+class UserSerializerMixin(serializers.ModelSerializer):
     role = RoleShortSerializer()
-    # driver = serializers.CharField(source='user.driver')
-
+    
     class Meta:
         model = User
         fields = (
@@ -44,6 +35,37 @@ class MeSerializer(serializers.ModelSerializer):
             'role',
         )
 
+
+class RetrieveDriverSerializer(serializers.ModelSerializer):
+
+    user = UserShortSerializer()
+    category = TransportCategoryShortSerializer()
+
+    class Meta:
+        model = Driver
+        fields = '__all__'
+
+
+class UpdateUserProfileSerializer(serializers.ModelSerializer):
+
+    id = serializers.IntegerField(read_only=True)
+    date_joined = serializers.DateTimeField(read_only=True)
+    email = serializers.EmailField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'date_joined',
+            'username',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'user_photo',
+            'user_dob',
+            'email',
+            'role',
+        )
 
 class UpdateDriverSerializer(serializers.ModelSerializer):
 

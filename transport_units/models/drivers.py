@@ -17,6 +17,10 @@ class Driver(models.Model):
     is_active=models.BooleanField(default=False)
     card_id=models.CharField(max_length=20)
 
+
+    def __str__(self):
+        return self.user.username
+
     class Meta:
         verbose_name='Водитель'
         verbose_name_plural='Водители'
