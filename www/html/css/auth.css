@@ -171,8 +171,7 @@ section {
   flex-basis: 50%;
   text-align: center;
 }
-.overlay-container .overlay .overlay-left {
-}
+
 .overlay-container .overlay h1 {
   font-family: "Montserrat";
   font-size: 40px;
@@ -232,8 +231,7 @@ section {
 	display: none;
 }
 
-.main_user_info_form{
-}
+
 
 .initial_user_info_form {
 	display: none;
