@@ -1,25 +1,89 @@
+// Retrieve token from localStorage
+const token = localStorage.getItem('accessToken');
+
+// Verify token using API endpoint
+fetch('http://127.0.0.1:8000/api/auth/jwt/verify/', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({ token: token })
+})
+.then(response => {
+  if (response.status === 200) {
+    // token is valid, continue with application logic
+  } else {
+    // token is invalid, redirect to login page
+    window.location.href = 'http://localhost/auth.html';
+  }
+})
+.catch(error => {
+  // handle fetch errors
+  console.error(error);
+});
+
+
 $(document).ready(function() {
-  // Make an AJAX request to get the profile data
   $.ajax({
-    url: 'http://127.0.0.1:8000/api/profile/driver/',
+    url: 'http://127.0.0.1:8000/api/profile/',
     type: 'GET',
     dataType: 'json',
     headers: {
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc3NTM3MTk4LCJqdGkiOiI4NDYzN2M0NWQ3MjY0NmIzODEzMWViZGY3ZmY2NjNkMyIsInVzZXJfaWQiOjF9.nPPoDc8nUWGVtsABtE8bQoU8OpMI5dC6w7-OHZh1ZjU"
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
     },
     success: function(data) {
-      console.log(data.user.user_photo)
-      // Update the HTML fields with the response data
-      $('#full_name').val(data.user.first_name + ' ' + data.user.last_name);
-      $('#email').val(data.user.email);
-      $('#phone').val(data.user.phone_number);
-      $('#role').val(data.user.role.title);
-      $('#dob').val(data.user.user_dob);
-      $('#profile_pic').attr('src', data.user.user_photo);
-    },
+      try {
+        $('#full_name').val(data.first_name + ' ' + data.last_name);
+        $('#full_name_label').text(data.first_name + ' ' + data.last_name);
+        $('#email').val(data.email);
+        $('#phone').val(data.phone_number);
+        $('#dob').val(data.user_dob);
+        $('#role').val(data.role.title);
+
+        if (data.role.title === 'Администратор') {
+          $('#user_nav_bar').css('display', 'none');
+          $('#admin_nav_bar').css('display', 'block');
+        };
+
+        if (data.user_photo == null) {
+          var user_photo = 'https://oir.mobi/uploads/posts/2021-04/1619619348_59-oir_mobi-p-samie-milie-kotiki-zhivotnie-krasivo-foto-65.jpg'
+          $('.rounded-circle').attr('src', user_photo);
+        } else {
+          var user_photo = '../../media/media/' + data.user_photo.split('/').pop();
+          $('.rounded-circle').attr('src', user_photo);
+        };
+      } catch (error) {
+        console.log(error)
+        $('#driver_initial_info').css('display', 'block');
+        $('#full_name').val(data.user.first_name + ' ' + data.user.last_name);
+        $('#full_name_label').text(data.user.first_name + ' ' + data.user.last_name);
+        $('#email').val(data.user.email);
+        $('#phone').val(data.user.phone_number);
+        $('#dob').val(data.user.user_dob);
+        $('#role').val(data.user.role.title);
+        $('#category_title').val(data.category.title);
+        $('#card_id').val(data.card_id);
+        if (data.is_active === false) {
+          $('#is_active').val('Свободен');
+        } else {
+          $('#is_active').val('Занят');
+        }
+        
+        if (data.user_photo == null) {
+          var user_photo = 'https://bootdey.com/img/Content/avatar/avatar2.png'
+          $('#profile_pic').attr('src', user_photo);
+        } else {
+          var user_photo = '../../media/media/' + data.user_photo.split('/').pop();
+          $('#profile_pic').attr('src', user_photo);
+        };
+        
+                      }
+        },
+    
     error: function(xhr, status, error) {
       console.log('Error: ' + error.message);
     }
   });
-
 });

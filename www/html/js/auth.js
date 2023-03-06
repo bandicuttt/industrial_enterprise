@@ -1,3 +1,25 @@
+const token = localStorage.getItem('accessToken');
+
+fetch('http://127.0.0.1:8000/api/auth/jwt/verify/', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({ token: token })
+})
+.then(response => {
+  if (response.status === 200) {
+    window.location.href = 'http://localhost/profile_menu.html';
+  } else {
+    window.location.href = 'http://localhost/auth.html';
+  }
+})
+.catch(error => {
+  console.error(error);
+});
+
+
 $(document).ready(function() {
     const signIn = document.querySelector("#signInButton");
     const signUp = document.querySelector("#signUpButton");
@@ -133,10 +155,11 @@ $(document).ready(function() {
           'username': formData.name,
           'password': formData.password,
       }),
-      // data: JSON.stringify(formData.role,formData.name, formData.password),
       contentType: 'application/json',
       success: function(response) {
-        console.log(response)
+        localStorage.setItem('accessToken', response.access);
+        localStorage.setItem('refreshToken', response.refresh);
+        window.location.href = 'http://localhost/profile_menu.html';
       },
       error: function(response) {
         $('#error-message-sign-in').text('Логин и пароль введены неверно!').css('color', 'red');

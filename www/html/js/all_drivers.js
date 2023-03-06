@@ -1,3 +1,51 @@
+const token = localStorage.getItem('accessToken');
+
+fetch('http://127.0.0.1:8000/api/auth/jwt/verify/', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({ token: token })
+})
+.then(response => {
+  if (response.status === 200) {
+  } else {
+    window.location.href = 'http://localhost/auth.html';
+  }
+})
+.catch(error => {
+  console.error(error);
+});
+
+
+$.ajax({
+  url: 'http://127.0.0.1:8000/api/profile/',
+  type: 'GET',
+  dataType: 'json',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  success: function(data) {
+    try {
+      if (data.role.title === 'Администратор') {
+        
+      } else {
+        window.location.href = 'http://localhost/profile_menu.html';
+      };
+    } catch (error) {
+
+                    }
+      },
+  
+  error: function(xhr, status, error) {
+    console.log('Error: ' + error.message);
+  }
+});
+
+
+
 // Execute code when the DOM content has been loaded
 document.addEventListener('DOMContentLoaded', () => {
   const searchButton = document.querySelector('#search_drivers');
@@ -45,8 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
       headers: {
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4MDU0NTA0LCJqdGkiOiJkYmM1MzA5NGEwYjM0Y2Q2OWEzZDJiNmFlNDMyMzQ2NSIsInVzZXJfaWQiOjF9.Yt8LVpQA0nGRIH4O9anULVRsaaEXJC7yy99g9j8sTuw`
-      }
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
     })
       .then(response => response.json())
       .then(data => {
@@ -79,8 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
     fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
       headers: {
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4MDU0NTA0LCJqdGkiOiJkYmM1MzA5NGEwYjM0Y2Q2OWEzZDJiNmFlNDMyMzQ2NSIsInVzZXJfaWQiOjF9.Yt8LVpQA0nGRIH4O9anULVRsaaEXJC7yy99g9j8sTuw`
-      }
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
     })
     .then(response => response.json())
     .then(users => {
@@ -170,8 +220,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Make API request with token
   fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
     headers: {
-      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4MDU0NTA0LCJqdGkiOiJkYmM1MzA5NGEwYjM0Y2Q2OWEzZDJiNmFlNDMyMzQ2NSIsInVzZXJfaWQiOjF9.Yt8LVpQA0nGRIH4O9anULVRsaaEXJC7yy99g9j8sTuw`
-    }
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
   })
   .then(response => {
     if (response.status === 200) {
@@ -236,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
           
         // Populate the div element with relevant data
         if (user.user.user_photo == null) {
-          var user_photo = 'https://bootdey.com/img/Content/avatar/avatar2.png'
+          var user_photo = 'https://oir.mobi/uploads/posts/2021-04/1619619348_59-oir_mobi-p-samie-milie-kotiki-zhivotnie-krasivo-foto-65.jpg'
         } else {
           var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
         };

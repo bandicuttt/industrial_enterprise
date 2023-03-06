@@ -2,7 +2,7 @@ body{
     margin-top:20px;
     color: #1a202c;
     text-align: left;
-    background-color: #364070;    
+    background-color: #c9edff;    
 }
 .main-body {
     padding: 15px;
@@ -11,39 +11,73 @@ body{
     box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);    
 }
 .breadcrumb {
-    background-color: #dbeeff;    
+    background-color: #fff;    
 }
 
-#phone {
-    background-color: #dbeeff; 
+#driver_initial_info {
+    display: none;
+}
+
+#admin_nav_bar {
+    display: none;
+}
+
+#card_id {
+    background-color: #fff; 
     outline:none;
     border: none;
     padding-top: 1px;
 }
 
+#is_active {
+    background-color: #fff; 
+    outline:none;
+    border: none;
+    padding-top: 1px;
+}
+
+#category_title {
+    background-color: #fff; 
+    outline:none;
+    border: none;
+    padding-top: 1px;
+}
+
+#phone {
+    background-color: #fff; 
+    outline:none;
+    border: none;
+    padding-top: 1px;
+}
+
+.breadcrumb {
+    outline: 2px solid #aae3ff;
+    background-color: #c9edff;
+}
+
 #role {
-    background-color: #dbeeff; 
+    background-color: #fff; 
     outline:none;
     border: none;
     padding-top: 1px;
 }
 
 #dob {
-    background-color: #dbeeff; 
+    background-color: #fff; 
     outline:none;
     border: none;
     padding-top: 1px;
 }
 
 #email {
-    background-color: #dbeeff; 
+    background-color: #fff; 
     outline:none;
     border: none;
     padding-top: 1px;
 }
 
 #full_name {
-    background-color: #dbeeff; 
+    background-color: #fff; 
     outline:none;
     border: none;
     padding-top: 1px;
@@ -58,7 +92,7 @@ body{
     flex-direction: column;
     min-width: 0;
     word-wrap: break-word;
-    background-color: #dbeeff;
+    background-color: #fff;
     background-clip: border-box;
     border: 0 solid rgba(0,0,0,.125);
     border-radius: .25rem;
