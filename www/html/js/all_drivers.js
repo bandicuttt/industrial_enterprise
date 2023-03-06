@@ -11,7 +11,7 @@ fetch('http://127.0.0.1:8000/api/auth/jwt/verify/', {
 .then(response => {
   if (response.status === 200) {
   } else {
-    window.location.href = 'http://localhost/auth.html';
+    window.location.href = 'http://localhost/industrial_enterprise/www/html/auth.html';
   }
 })
 .catch(error => {
@@ -32,7 +32,7 @@ $.ajax({
       if (data.role.title === 'Администратор') {
         
       } else {
-        window.location.href = 'http://localhost/profile_menu.html';
+        window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_menu.html';
       };
     } catch (error) {
 

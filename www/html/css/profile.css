@@ -21,6 +21,9 @@ body{
 #admin_nav_bar {
     display: none;
 }
+#driver_nav_bar {
+    display: none;
+}
 
 #card_id {
     background-color: #fff; 

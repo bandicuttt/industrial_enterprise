@@ -20,6 +20,12 @@ class Driver(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.user.is_active = False
+        super().save(*args, **kwargs)
+        self.user.save()
 
     class Meta:
         verbose_name='Водитель'

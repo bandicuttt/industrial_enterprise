@@ -10,9 +10,9 @@ fetch('http://127.0.0.1:8000/api/auth/jwt/verify/', {
 })
 .then(response => {
   if (response.status === 200) {
-    window.location.href = 'http://localhost/profile_menu.html';
+    window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_menu.html';
   } else {
-    window.location.href = 'http://localhost/auth.html';
+    // window.location.href = 'http://localhost/industrial_enterprise/www/html/auth.html';
   }
 })
 .catch(error => {
@@ -159,7 +159,7 @@ $(document).ready(function() {
       success: function(response) {
         localStorage.setItem('accessToken', response.access);
         localStorage.setItem('refreshToken', response.refresh);
-        window.location.href = 'http://localhost/profile_menu.html';
+        window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_menu.html';
       },
       error: function(response) {
         $('#error-message-sign-in').text('Логин и пароль введены неверно!').css('color', 'red');
@@ -254,10 +254,31 @@ $(document).ready(function() {
                   'card_id': formDataUserInitial.card_id,
                   'category': category_id,
               }),
-              // data: JSON.stringify(formData.role,formData.name, formData.password),
               contentType: 'application/json',
               success: function(response) {
-                //   тут успех
+                window.location.href = 'http://localhost/industrial_enterprise/www/html/driver_success_register.html';
+                // $.ajax({
+                //   type: 'POST',
+                //   url: 'http://127.0.0.1:8000/api/auth/jwt/create/',
+                //   data: JSON.stringify({
+                //       'username': formData.name,
+                //       'password': formData.password,
+                //   }),
+                //   contentType: 'application/json',
+                //   success: function(response) {
+                //     localStorage.setItem('accessToken', response.access);
+                //     localStorage.setItem('refreshToken', response.refresh);
+                //     window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_menu.html';
+                //   },
+                //   error: function(response) {
+                //     $('#error-message-sign-in').text('Логин и пароль введены неверно!').css('color', 'red');
+                //   setTimeout(function() {
+                //     $('#error-message-sign-in').text('').css('color', '');
+                //   }, 3000);
+                //     return;
+                //   }
+            
+                // });
               },
               error: function(response) {
                   var jsonString = JSON.stringify(response);
@@ -363,7 +384,28 @@ $(document).ready(function() {
               // data: JSON.stringify(formData.role,formData.name, formData.password),
               contentType: 'application/json',
               success: function(response) {
-                //   тут успех
+                $.ajax({
+                  type: 'POST',
+                  url: 'http://127.0.0.1:8000/api/auth/jwt/create/',
+                  data: JSON.stringify({
+                      'username': formData.name,
+                      'password': formData.password,
+                  }),
+                  contentType: 'application/json',
+                  success: function(response) {
+                    localStorage.setItem('accessToken', response.access);
+                    localStorage.setItem('refreshToken', response.refresh);
+                    window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_menu.html';
+                  },
+                  error: function(response) {
+                    $('#error-message-sign-in').text('Логин и пароль введены неверно!').css('color', 'red');
+                  setTimeout(function() {
+                    $('#error-message-sign-in').text('').css('color', '');
+                  }, 3000);
+                    return;
+                  }
+            
+                });
               },
               error: function(response) {
                   var jsonString = JSON.stringify(response);

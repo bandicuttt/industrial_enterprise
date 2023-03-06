@@ -15,7 +15,7 @@ fetch('http://127.0.0.1:8000/api/auth/jwt/verify/', {
     // token is valid, continue with application logic
   } else {
     // token is invalid, redirect to login page
-    window.location.href = 'http://localhost/auth.html';
+    window.location.href = 'http://localhost/industrial_enterprise/www/html/auth.html';
   }
 })
 .catch(error => {
@@ -70,13 +70,16 @@ $(document).ready(function() {
         } else {
           $('#is_active').val('Занят');
         }
+        $('#user_nav_bar').css('display', 'none');
+        $('#driver_nav_bar').css('display', 'block');
+
         
         if (data.user_photo == null) {
-          var user_photo = 'https://bootdey.com/img/Content/avatar/avatar2.png'
-          $('#profile_pic').attr('src', user_photo);
+          var user_photo = 'https://oir.mobi/uploads/posts/2021-04/1619619348_59-oir_mobi-p-samie-milie-kotiki-zhivotnie-krasivo-foto-65.jpg'
+          $('.rounded-circle').attr('src', user_photo);
         } else {
           var user_photo = '../../media/media/' + data.user_photo.split('/').pop();
-          $('#profile_pic').attr('src', user_photo);
+          $('.rounded-circle').attr('src', user_photo);
         };
         
                       }
