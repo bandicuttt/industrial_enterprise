@@ -67,8 +67,8 @@ class UpdateUserProfileSerializer(serializers.ModelSerializer):
             'role',
         )
 
-class UpdateDriverSerializer(serializers.ModelSerializer):
 
+class UpdateDriverSerializerMixin(serializers.ModelSerializer):
     is_active = serializers.BooleanField(read_only=True)
     user = UserShortUpdateSerializer()
 
@@ -86,6 +86,12 @@ class UpdateDriverSerializer(serializers.ModelSerializer):
                     setattr(user, key, value)
             user.save()
         return instance
+
+class UpdateDriverSerializer(UpdateDriverSerializerMixin):
+    pass
+
+class UpdateDriverSerializerAdmin(UpdateDriverSerializerMixin):
+    is_active = serializers.BooleanField()
 
 
 class RegisterCustomerSerializer(serializers.ModelSerializer):

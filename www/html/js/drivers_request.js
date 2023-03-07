@@ -1,5 +1,57 @@
 const token = localStorage.getItem('accessToken');
 
+function deleteUser(id,token) {
+  const url = 'http://127.0.0.1:8000/api/admin/profile-usr-del/'+id+'/';
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+
+  fetch(url, {
+    method: 'DELETE',
+    headers: headers
+  })
+  .then(response => {
+    if (response.ok) {
+      console.log('User deleted successfully.');
+    } else {
+      console.error('Failed to delete user.');
+    }
+  })
+  .catch(error => {
+    console.error('Error deleting user:', error);
+  });
+}
+
+function updateProfileUser(id, token, mode) {
+  const url = 'http://127.0.0.1:8000/api/admin/profile-usr/'+id+'/';
+  const options = {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      user: {
+        is_active: mode
+      }
+    })
+  };
+  fetch(url, options)
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Network response was not ok.');
+    })
+    .then(data => {
+      console.log(data);
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+    });
+}
+
 fetch('http://127.0.0.1:8000/api/auth/jwt/verify/', {
   method: 'POST',
   headers: {
@@ -91,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
       XLSX.writeFile(workbook, filename);
     }
     
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+    fetch('http://127.0.0.1:8000/api/drivers/?is_active=false', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -126,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
             return;
     } else {
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+    fetch('http://127.0.0.1:8000/api/drivers/?is_active=false', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -188,7 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
                           <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
                           <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
                       </div>
-                      <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
+                      <button name="accept_driver" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Одобрить</button>
+                    <button name="open_driver_profile" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
+                    <button name="decline_driver" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Отклонить</button>
                       <div class="mt-4">
                           <div class="row">
                               <div class="col-4">
@@ -217,21 +271,32 @@ document.addEventListener('DOMContentLoaded', () => {
   
           // Append the created div element to the parent element
           document.getElementById('user-container').appendChild(div);
-          const driverButtons = document.querySelectorAll('.btn.btn-primary.mt-3.btn-rounded.waves-effect.w-md.waves-light');
+        });
+        const driverButtons = document.querySelectorAll('.btn.btn-primary.mt-3.btn-rounded.waves-effect.w-md.waves-light');
       driverButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-          event.preventDefault();
-          const ProfileId = event.target.id;
-          console.log(ProfileId)
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        const ProfileId = event.target.id;
+        const ButtonFunc = event.target.name;
+        if (ButtonFunc == 'open_driver_profile') {
           window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_view.html?id='+ProfileId;
-        });
+        }
+        if (ButtonFunc == 'accept_driver') {
+          updateProfileUser(ProfileId, token, true, 'driver');
+          location.reload();
+        }
+        if (ButtonFunc == 'decline_driver') {
+          deleteUser(ProfileId, token);
+          location.reload();
+        }
+        
       });
-        });
+    });
       });
   }});
 
   // Make API request with token
-  fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+  fetch('http://127.0.0.1:8000/api/drivers/?is_active=false', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -313,7 +378,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
                         <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
                     </div>
-                    <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
+                    <button name="accept_driver" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Одобрить</button>
+                    <button name="open_driver_profile" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
+                    <button name="decline_driver" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Отклонить</button>
                     <div class="mt-4">
                         <div class="row">
                             <div class="col-4">
@@ -344,16 +411,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-container').appendChild(div);
         
         });
+       
       var graphsButton = document.getElementById('graphs');
       const driverButtons = document.querySelectorAll('.btn.btn-primary.mt-3.btn-rounded.waves-effect.w-md.waves-light');
       driverButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-          event.preventDefault();
-          const ProfileId = event.target.id;
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        const ProfileId = event.target.id;
+        const ButtonFunc = event.target.name;
+        if (ButtonFunc == 'open_driver_profile') {
           window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_view.html?id='+ProfileId;
-        });
+        }
+        if (ButtonFunc == 'accept_driver') {
+          updateProfileUser(ProfileId, token, true, 'driver');
+          location.reload();
+        }
+        if (ButtonFunc == 'decline_driver') {
+          deleteUser(ProfileId, token)
+          location.reload();
+        }
+        
       });
+    });
+
+      // Attach a click event listener to the button
       graphsButton.addEventListener('click', function() {
+        // Find the canvas element by ID
         var dobChart = document.getElementById('dob-chart');
         dobChart.scrollIntoView({ behavior: 'smooth' });
       });

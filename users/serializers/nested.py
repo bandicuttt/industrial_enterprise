@@ -44,5 +44,5 @@ class UserShortUpdateSerializer(serializers.ModelSerializer):
             'user_photo',
             'user_dob',
             'email',
+            'is_active',
         ) 
-

@@ -1,11 +1,12 @@
 from rest_framework import generics
 from users.serializers.users import (RegisterSerializer, RegisterDriverSerializer,
-                                        RetrieveDriverSerializer, UpdateDriverSerializer, RegisterCustomerSerializer, UpdateUserProfileSerializer, UserSerializerMixin)
+                                        RetrieveDriverSerializer, UpdateDriverSerializer, RegisterCustomerSerializer, UpdateDriverSerializerAdmin, UpdateUserProfileSerializer, UserSerializerMixin)
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 from transport_units.models.drivers import Driver
 from crum import get_current_user
+from rest_framework.permissions import IsAdminUser
 
 
 User = get_user_model()
@@ -95,3 +96,47 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         else:
             queryset = User.objects.all()
         return queryset
+    
+    
+
+@extend_schema_view(
+    patch=extend_schema(summary='Обновить профиль частично', tags=['Для админов']),
+    get=extend_schema(summary='Посмотреть профиль', tags=['Для админов']),
+)
+class ProfileAdminView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UpdateUserProfileSerializer
+    http_method_names = ['get','patch']
+    permission_classes = (IsAdminUser,)
+
+    def get_serializer_class(self, *args, **kwargs):
+        user = User.objects.get(id=self.kwargs.get('pk'))
+        if self.request.method in ['PATCH']:
+            print('тут')
+            if user.role.title in ['Покупатель','Администратор']:
+                return UpdateUserProfileSerializer
+            return UpdateDriverSerializerAdmin
+        
+        else:
+            if  user.role.title in ['Покупатель','Администратор']:
+                return UserSerializerMixin
+        return RetrieveDriverSerializer
+
+    def get_queryset(self):
+        user = User.objects.get(id=self.kwargs.get('pk'))
+
+        if user.role.title == 'Водитель':
+            queryset = Driver.objects.filter(user=user)
+            return queryset
+
+        return User.objects.all()
+
+
+@extend_schema_view(
+    delete=extend_schema(summary='Удалить профиль', tags=['Для админов']),
+)
+class ProfileAdminDelete(generics.DestroyAPIView):
+    queryset = User.objects.all()
+    permission_classes = (IsAdminUser,)
+
+    
