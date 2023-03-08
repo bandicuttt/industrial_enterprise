@@ -67,17 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const output = {};
       
       output.id = input.id;
-      output.username = input.user.username;
-      output.first_name = input.user.first_name;
-      output.last_name = input.user.last_name;
-      output.phone_number = input.user.phone_number;
-      output.user_photo = input.user.user_photo;
-      output.user_dob = input.user.user_dob;
-      output.email = input.user.email;
-      output.title = input.user.role.title;
-      output.is_active = input.is_active;
-      output.card_id = input.card_id;
-      
+      output.license_category = input.license_category.title;
+      output.carrying_capacity = input.carrying_capacity;
+      output.make = input.make;
+      output.registration_number = input.registration_number;
+      output.delivery_price = input.delivery_price;
+      output.unit_photo = input.unit_photo;
       return output;
     }
     
@@ -91,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
       XLSX.writeFile(workbook, filename);
     }
     
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+    fetch('http://127.0.0.1:8000/api/transportunit/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -126,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
             return;
     } else {
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+      fetch('http://127.0.0.1:8000/api/transportunit/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -137,14 +132,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter user data based on search query and category
         const filteredUsers = users.filter(user => {
           if (searchCategory === 'ID') {
-            return user.user.id.toString() === searchQuery;
-          } else if (searchCategory === 'Имя Фамилия') {
-            const fullName = `${user.user.first_name} ${user.user.last_name}`;
-            return fullName.toLowerCase().includes(searchQuery.toLowerCase());
-          } else if (searchCategory === 'Имя пользователя') {
-            return user.user.username.toLowerCase().includes(searchQuery.toLowerCase());
-          } else if (searchCategory === 'Email') {
-            return user.user.email.toLowerCase().includes(searchQuery.toLowerCase());
+            return user.id.toString() === searchQuery;
+          } else if (searchCategory === 'Регистрационный номер') {
+            return user.registration_number.toLowerCase().includes(searchQuery.toLowerCase());
+          } else if (searchCategory === 'Грузоподьемность') {
+            const weight = user.carrying_capacity.toString()
+            return weight.toLowerCase().includes(searchQuery.toLowerCase());
+          } else if (searchCategory === 'Цена доставки') {
+            const price = user.delivery_price.toString()
+            return price.toLowerCase().includes(searchQuery.toLowerCase());
+          } else if (searchCategory === 'Марка') {
+            return user.make.toLowerCase().includes(searchQuery.toLowerCase());
           } else if (searchCategory === 'Все') {
             return true;
           } else {
@@ -156,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }); // Add closing parenthesis here
         if (filteredUsers.length === 0 && searchCategory != 'Не выбрано') {
-          $('#error-message-search').text('Пользователь не найден!').css('color', 'red');
+          $('#error-message-search').text('Автомобиль не найден!').css('color', 'red');
             setTimeout(function() {
               $('#error-message-search').text('').css('color', '');
             }, 3000);
@@ -172,58 +170,43 @@ document.addEventListener('DOMContentLoaded', () => {
           div.setAttribute('class', 'col-lg-4');
           const count = document.querySelector('.count_drivers')
           count.setAttribute('placeholder', 'Найдено: '+filteredUsers.length);
-          if (user.user.user_photo == null) {
-            var user_photo = 'media/driver_photo.jpg'
+          if (user.unit_photo == null) {
+            var user_photo = 'media/transport_unit.jpg'
           } else {
-            var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
+            var user_photo = '../../media/media/' + user.unit_photo.split('/').pop();
           };
   
           // Populate the div element with relevant data
           div.innerHTML = `
-              <div class="text-center card-box">
-                  <div class="member-card pt-2 pb-2">
-                      <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
-                      <div class="">
-                          <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
-                          <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                          <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
-                      </div>
-                      <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
-                      <div class="mt-4">
-                          <div class="row">
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.category.title}</h4>
-                                      <p class="mb-0 text-muted">Категория прав</p>
-                                  </div>
-                              </div>
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.user.user_dob}</h4>
-                                      <p class="mb-0 text-muted">Дата рождения</p>
-                                  </div>
-                              </div>
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.user.id}</h4>
-                                      <p class="mb-0 text-muted">ID пользователя</p>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          `;
+            <div class="text-center card-box">
+                <div class="member-card pt-2 pb-2">
+                    <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
+                    <div class="">
+                        <h4>${user.make}</h4>
+                        <p class="text-muted">ID<span> | </span><span><a href="#" class="text-pink">${user.id}</a></span></p>
+                        <p class="text-muted">Регистрационный номер <span>| </span><span><a href="#" class="text-pink">${user.registration_number}</a></span></p>
+                        <p class="text-muted">Грузоподьемность <span>| </span><span><a href="#" class="text-pink">${user.carrying_capacity}</a></span></p>
+                        <p class="text-muted">Цена доставки <span>| </span><span><a href="#" class="text-pink">${user.delivery_price} $</a></span></p>
+                        <p class="text-muted">Необходимая категория прав <span>| </span><span><a href="#" class="text-pink">${user.license_category.title}</a></span></p>
+
+                    </div>
+                    
+                </div>
+            </div>
+        `;
   
           // Append the created div element to the parent element
           document.getElementById('user-container').appendChild(div);
           const driverButtons = document.querySelectorAll('.btn.btn-primary.mt-3.btn-rounded.waves-effect.w-md.waves-light');
       driverButtons.forEach(button => {
         button.addEventListener('click', (event) => {
-          event.preventDefault();
           const ProfileId = event.target.id;
-          console.log(ProfileId)
+          if (ProfileId === 'graphs') {
+            event.preventDefault();
+            dobChart.scrollIntoView({ behavior: 'smooth' });
+          } else {
           window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_view.html?id='+ProfileId;
+        }
         });
       });
         });
@@ -231,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }});
 
   // Make API request with token
-  fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+  fetch('http://127.0.0.1:8000/api/transportunit/', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -247,21 +230,21 @@ document.addEventListener('DOMContentLoaded', () => {
     return response.json();
   })
     .then(data => {
-      const dobCounts = {};
+      const capacityCounts = {};
 
     // loop through the driver data and extract the DOB information
-    data.forEach(driver => {
-      const dob = new Date(driver.user.date_joined).toLocaleDateString();
-      if (dob in dobCounts) {
-        dobCounts[dob]++;
+    data.forEach(machine => {
+      const capacity = machine.carrying_capacity;
+      if (capacity in capacityCounts) {
+        capacityCounts[capacity]++;
       } else {
-        dobCounts[dob] = 1;
+        capacityCounts[capacity] = 1;
       }
     });
 
     // create an array of labels and counts for the graph
-    const labels = Object.keys(dobCounts);
-    const counts = Object.values(dobCounts);
+    const labels = Object.keys(capacityCounts);
+    const counts = Object.values(capacityCounts);
 
     // create a bar chart using Chart.js library
     const ctx = document.getElementById('dob-chart').getContext('2d');
@@ -270,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Водители/Дата регистрации ',
+          label: 'Маишны/Грузоподьемность ',
           data: counts,
           backgroundColor: 'rgba(54, 162, 235, 0.2)',
           borderColor: 'rgba(54, 162, 235, 1)',
@@ -292,50 +275,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Loop through the data and create a div element for each item
       users.forEach(user => {
-        console.log(user.user.user_photo)
+        console.log(user.unit_photo)
         const div = document.createElement('div');
         div.setAttribute('class', 'col-lg-4');
         const count = document.querySelector('.count_drivers')
         count.setAttribute('placeholder', 'Найдено: '+data.length);
           
         // Populate the div element with relevant data
-        if (user.user.user_photo == null) {
-          var user_photo = 'media/driver_photo.jpg'
+        if (user.unit_photo == null) {
+          var user_photo = 'media/transport_unit.jpg'
         } else {
-          var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
+          var user_photo = '../../media/media/' + user.unit_photo.split('/').pop();
         };
         div.innerHTML = `
             <div class="text-center card-box">
                 <div class="member-card pt-2 pb-2">
                     <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
                     <div class="">
-                        <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
-                        <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                        <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
+                        <h4>${user.make}</h4>
+                        <p class="text-muted">ID<span> | </span><span><a href="#" class="text-pink">${user.id}</a></span></p>
+                        <p class="text-muted">Регистрационный номер <span>| </span><span><a href="#" class="text-pink">${user.registration_number}</a></span></p>
+                        <p class="text-muted">Грузоподьемность <span>| </span><span><a href="#" class="text-pink">${user.carrying_capacity}</a></span></p>
+                        <p class="text-muted">Цена доставки <span>| </span><span><a href="#" class="text-pink">${user.delivery_price} $</a></span></p>
+                        <p class="text-muted">Необходимая категория прав <span>| </span><span><a href="#" class="text-pink">${user.license_category.title}</a></span></p>
+
                     </div>
-                    <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
-                    <div class="mt-4">
-                        <div class="row">
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.category.title}</h4>
-                                    <p class="mb-0 text-muted">Категория прав</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.user.user_dob}</h4>
-                                    <p class="mb-0 text-muted">Дата рождения</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.user.id}</h4>
-                                    <p class="mb-0 text-muted">ID пользователя</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         `;
@@ -350,12 +315,12 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', (event) => {
           event.preventDefault();
           const ProfileId = event.target.id;
+          if (ProfileId === 'graphs') {
+            dobChart.scrollIntoView({ behavior: 'smooth' });
+          } else {
           window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_view.html?id='+ProfileId;
+        }
         });
-      });
-      graphsButton.addEventListener('click', function() {
-        var dobChart = document.getElementById('dob-chart');
-        dobChart.scrollIntoView({ behavior: 'smooth' });
       });
           })
     .catch(error => console.error(error));

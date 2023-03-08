@@ -3,3 +3,4 @@ from .nested import TransportCategoryShortSerializer
 
 class TransportCategoryListSerializer(TransportCategoryShortSerializer):
     pass
+

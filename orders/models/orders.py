@@ -34,7 +34,13 @@ class Order(models.Model):
         related_name='drivers_orders',
     )
     volume=models.PositiveSmallIntegerField()
-    delivery_date=models.DateField()
+    created_at=models.DateField(
+        null=False,
+    )
+    delivery_date=models.DateField(
+        null=True,
+        blank=True,
+    )
     delivery_address=models.CharField(
         max_length=100,
     )

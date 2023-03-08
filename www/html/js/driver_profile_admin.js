@@ -9,11 +9,7 @@ function updateProfileUser(id, token, mode) {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     },
-    body: JSON.stringify({
-      user: {
-        is_active: mode
-      }
-    })
+    body: JSON.stringify({'is_active': mode})
   };
   fetch(url, options)
     .then(response => {
@@ -67,7 +63,6 @@ $(document).ready(function() {
         'Authorization': `Bearer ${token}`
       },
       success: function(data) {
-        try {
           $('#driver').text(data.first_name + ' ' + data.last_name);
           $('#full_name').val(data.first_name + ' ' + data.last_name);
           $('#full_name_label').text(data.first_name + ' ' + data.last_name);
@@ -76,60 +71,40 @@ $(document).ready(function() {
           $('#dob').val(data.user_dob);
           $('#role').val(data.role.title);
           $('#admin_nav_bar').css('display', 'block');
-          $('#ban').css('display', 'none');
-  
-          if (data.user_photo == null) {
-            var user_photo = 'https://oir.mobi/uploads/posts/2021-04/1619619348_59-oir_mobi-p-samie-milie-kotiki-zhivotnie-krasivo-foto-65.jpg'
-            $('.rounded-circle').attr('src', user_photo);
-          } else {
-            var user_photo = '../../media/media/' + data.user_photo.split('/').pop();
-            $('.rounded-circle').attr('src', user_photo);
-          };
-        } catch (error) {
-
-          if (data.user.is_active == true) {
-            $('.ban_or_unban_user').text('Заблокировать')
-          } else {
-            $('.ban_or_unban_user').text('Разблокировать')
-          }
-
-          $('#ban').click(function(e) {
-            if (data.user.is_active == true) {
-              updateProfileUser(data.user.id, token, false, 'drvier');
+          $('.btn.btn-info').click(function(e) {
+            if (data.is_active == true) {
+              updateProfileUser(data.id, token, false, 'drvier');
             } else {
-              updateProfileUser(data.user.id, token, true, 'driver');
+              updateProfileUser(data.id, token, true, 'driver');
             }
             location.reload();
           });
-
-          $('#driver_initial_info').css('display', 'block');
-          $('#full_name').val(data.user.first_name + ' ' + data.user.last_name);
-          $('#full_name_label').text(data.user.first_name + ' ' + data.user.last_name);
-          $('#email').val(data.user.email);
-          $('#phone').val(data.user.phone_number);
-          $('#dob').val(data.user.user_dob);
-          $('#role').val(data.user.role.title);
-          $('#category_title').val(data.category.title);
-          $('#card_id').val(data.card_id);
-          if (data.is_active === false) {
-            $('#is_active').val('Свободен');
+          
+          if (data.role.title == 'Водитель') {
+            $('#driver_initial_info').css('display', 'block');
+            $('#category_title').val(data.driver.category.title);
+            $('#card_id').val(data.driver.card_id);
+            if (data.driver.is_active === false) {
+              $('#is_active').val('Свободен');
+            } else {
+              $('#is_active').val('Занят');
+            }
+            if (data.is_active == true) {
+              $('.btn.btn-info').text('Заблокировать')
+            } else {
+              $('.btn.btn-info').text('Разблокировать')
+            }
           } else {
-            $('#is_active').val('Занят');
+            $('.btn.btn-info').css('display', 'none');
           }
-          $('#driver').text(data.user.first_name + ' ' + data.user.last_name);
-          $('#admin_nav_bar').css('display', 'block');
-          
-          
+
           if (data.user_photo == null) {
-            var user_photo = 'https://oir.mobi/uploads/posts/2021-04/1619619348_59-oir_mobi-p-samie-milie-kotiki-zhivotnie-krasivo-foto-65.jpg'
+            var user_photo = 'media/driver_photo.jpg'
             $('.rounded-circle').attr('src', user_photo);
           } else {
             var user_photo = '../../media/media/' + data.user_photo.split('/').pop();
             $('.rounded-circle').attr('src', user_photo);
-          };
-          
-        }
-        
+        } 
           },
       error: function(xhr, status, error) {
         console.log('Error: ' + error.message);

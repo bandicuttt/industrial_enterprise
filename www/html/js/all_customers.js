@@ -1,53 +1,5 @@
 const token = localStorage.getItem('accessToken');
 
-function deleteUser(id,token) {
-  const url = 'http://127.0.0.1:8000/api/admin/profile-usr-del/'+id+'/';
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  };
-
-  fetch(url, {
-    method: 'DELETE',
-    headers: headers
-  })
-  .then(response => {
-    if (response.ok) {
-      console.log('User deleted successfully.');
-    } else {
-      console.error('Failed to delete user.');
-    }
-  })
-  .catch(error => {
-    console.error('Error deleting user:', error);
-  });
-}
-
-function updateProfileUser(id, token, mode) {
-  const url = 'http://127.0.0.1:8000/api/admin/profile-usr/'+id+'/';
-  const options = {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify({'is_active': mode})
-  };
-  fetch(url, options)
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      }
-      throw new Error('Network response was not ok.');
-    })
-    .then(data => {
-      console.log(data);
-    })
-    .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
-    });
-}
-
 fetch('http://127.0.0.1:8000/api/auth/jwt/verify/', {
   method: 'POST',
   headers: {
@@ -115,16 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const output = {};
       
       output.id = input.id;
-      output.username = input.user.username;
-      output.first_name = input.user.first_name;
-      output.last_name = input.user.last_name;
-      output.phone_number = input.user.phone_number;
-      output.user_photo = input.user.user_photo;
-      output.user_dob = input.user.user_dob;
-      output.email = input.user.email;
-      output.title = input.user.role.title;
-      output.is_active = input.is_active;
-      output.card_id = input.card_id;
+      output.username = input.username;
+      output.first_name = input.first_name;
+      output.last_name = input.last_name;
+      output.phone_number = input.phone_number;
+      output.user_photo = input.user_photo;
+      output.user_dob = input.user_dob;
+      output.email = input.email;
+      output.title = input.role.title;
       
       return output;
     }
@@ -139,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
       XLSX.writeFile(workbook, filename);
     }
     
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=false', {
+    fetch('http://127.0.0.1:8000/api/customers/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -174,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
             return;
     } else {
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=false', {
+      fetch('http://127.0.0.1:8000/api/customers/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -185,14 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter user data based on search query and category
         const filteredUsers = users.filter(user => {
           if (searchCategory === 'ID') {
-            return user.user.id.toString() === searchQuery;
+            return user.id.toString() === searchQuery;
           } else if (searchCategory === 'Имя Фамилия') {
-            const fullName = `${user.user.first_name} ${user.user.last_name}`;
+            const fullName = `${user.first_name} ${user.last_name}`;
             return fullName.toLowerCase().includes(searchQuery.toLowerCase());
           } else if (searchCategory === 'Имя пользователя') {
-            return user.user.username.toLowerCase().includes(searchQuery.toLowerCase());
+            return user.username.toLowerCase().includes(searchQuery.toLowerCase());
           } else if (searchCategory === 'Email') {
-            return user.user.email.toLowerCase().includes(searchQuery.toLowerCase());
+            return user.email.toLowerCase().includes(searchQuery.toLowerCase());
           } else if (searchCategory === 'Все') {
             return true;
           } else {
@@ -220,10 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
           div.setAttribute('class', 'col-lg-4');
           const count = document.querySelector('.count_drivers')
           count.setAttribute('placeholder', 'Найдено: '+filteredUsers.length);
-          if (user.user.user_photo == null) {
+          if (user.user_photo == null) {
             var user_photo = 'media/driver_photo.jpg'
           } else {
-            var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
+            var user_photo = '../../media/media/' + user.user_photo.split('/').pop();
           };
   
           // Populate the div element with relevant data
@@ -232,30 +182,28 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="member-card pt-2 pb-2">
                       <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
                       <div class="">
-                          <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
-                          <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                          <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
+                          <h4>${user.first_name + ' ' + user.last_name}</h4>
+                          <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.email}</a></span></p>
+                          <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.phone_number}</a></span></p>
                       </div>
-                      <button name="accept_driver" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Одобрить</button>
-                    <button name="open_driver_profile" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
-                    <button name="decline_driver" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Отклонить</button>
+                      <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.id}>Профиль</button>
                       <div class="mt-4">
                           <div class="row">
                               <div class="col-4">
                                   <div class="mt-3">
-                                      <h4>${user.category.title}</h4>
-                                      <p class="mb-0 text-muted">Категория прав</p>
-                                  </div>
-                              </div>
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.user.user_dob}</h4>
+                                      <h4>${user.user_dob}</h4>
                                       <p class="mb-0 text-muted">Дата рождения</p>
                                   </div>
                               </div>
                               <div class="col-4">
+                                <div class="mt-3">
+                                    <h4></h4>
+
+                                </div>
+                              </div>
+                              <div class="col-4">
                                   <div class="mt-3">
-                                      <h4>${user.user.id}</h4>
+                                      <h4>${user.id}</h4>
                                       <p class="mb-0 text-muted">ID пользователя</p>
                                   </div>
                               </div>
@@ -267,24 +215,21 @@ document.addEventListener('DOMContentLoaded', () => {
   
           // Append the created div element to the parent element
           document.getElementById('user-container').appendChild(div);
+          const driverButtons = document.querySelectorAll('.btn.btn-primary.mt-3.btn-rounded.waves-effect.w-md.waves-light');
+      driverButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          const ProfileId = event.target.id;
+          console.log(ProfileId)
+          window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_view.html?id='+ProfileId;
         });
-        const driverButtons = document.querySelectorAll('.btn.btn-primary.mt-3.btn-rounded.waves-effect.w-md.waves-light');
-        driverButtons.forEach(button => {
-          button.addEventListener('click', (event) => {
-            event.preventDefault();
-            const ProfileId = event.target.id;
-            if (ProfileId === 'graphs') {
-              dobChart.scrollIntoView({ behavior: 'smooth' });
-            } else {
-            window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_view.html?id='+ProfileId;
-          }
-          });
+      });
         });
       });
   }});
 
   // Make API request with token
-  fetch('http://127.0.0.1:8000/api/drivers/?is_active=false', {
+  fetch('http://127.0.0.1:8000/api/customers/', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -304,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // loop through the driver data and extract the DOB information
     data.forEach(driver => {
-      const dob = new Date(driver.user.date_joined).toLocaleDateString();
+      const dob = new Date(driver.date_joined).toLocaleDateString();
       if (dob in dobCounts) {
         dobCounts[dob]++;
       } else {
@@ -323,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Заявки/Дата регистрации ',
+          label: 'Пользователи/Дата регистрации ',
           data: counts,
           backgroundColor: 'rgba(54, 162, 235, 0.2)',
           borderColor: 'rgba(54, 162, 235, 1)',
@@ -345,47 +290,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Loop through the data and create a div element for each item
       users.forEach(user => {
-        console.log(user.user.user_photo)
+        console.log(user.user_photo)
         const div = document.createElement('div');
         div.setAttribute('class', 'col-lg-4');
         const count = document.querySelector('.count_drivers')
         count.setAttribute('placeholder', 'Найдено: '+data.length);
           
         // Populate the div element with relevant data
-        if (user.user.user_photo == null) {
+        if (user.user_photo == null) {
           var user_photo = 'media/driver_photo.jpg'
         } else {
-          var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
+          var user_photo = '../../media/media/' + user.user_photo.split('/').pop();
         };
         div.innerHTML = `
             <div class="text-center card-box">
                 <div class="member-card pt-2 pb-2">
                     <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
                     <div class="">
-                        <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
-                        <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                        <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
+                        <h4>${user.first_name + ' ' + user.last_name}</h4>
+                        <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.email}</a></span></p>
+                        <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.phone_number}</a></span></p>
                     </div>
-                    <button name="accept_driver" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Одобрить</button>
-                    <button name="open_driver_profile" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
-                    <button name="decline_driver" type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Отклонить</button>
+                    <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.id}>Профиль</button>
                     <div class="mt-4">
                         <div class="row">
                             <div class="col-4">
                                 <div class="mt-3">
-                                    <h4>${user.category.title}</h4>
-                                    <p class="mb-0 text-muted">Категория прав</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.user.user_dob}</h4>
+                                    <h4>${user.user_dob}</h4>
                                     <p class="mb-0 text-muted">Дата рождения</p>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="mt-3">
-                                    <h4>${user.user.id}</h4>
+                                    <h4></h4>
+
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mt-3">
+                                    <h4>${user.id}</h4>
                                     <p class="mb-0 text-muted">ID пользователя</p>
                                 </div>
                             </div>
@@ -399,32 +342,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-container').appendChild(div);
         
         });
-       
       var graphsButton = document.getElementById('graphs');
       const driverButtons = document.querySelectorAll('.btn.btn-primary.mt-3.btn-rounded.waves-effect.w-md.waves-light');
       driverButtons.forEach(button => {
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        const ProfileId = event.target.id;
-        const ButtonFunc = event.target.name;
-        if (ButtonFunc == 'open_driver_profile') {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          const ProfileId = event.target.id;
           window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_view.html?id='+ProfileId;
-        }
-        if (ButtonFunc == 'accept_driver') {
-          updateProfileUser(ProfileId, token, true, 'driver');
-          location.reload();
-        }
-        if (ButtonFunc == 'decline_driver') {
-          deleteUser(ProfileId, token)
-          location.reload();
-        }
-        
+        });
       });
-    });
-
-      // Attach a click event listener to the button
       graphsButton.addEventListener('click', function() {
-        // Find the canvas element by ID
         var dobChart = document.getElementById('dob-chart');
         dobChart.scrollIntoView({ behavior: 'smooth' });
       });

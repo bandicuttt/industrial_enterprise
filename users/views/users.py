@@ -1,12 +1,16 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics
-from users.serializers.users import (RegisterSerializer, RegisterDriverSerializer,
+from users.serializers.users import (CustomerProfileAdminSerializer, DriverProfileAdminSerializer, ProfileAdminSerializer, RegisterSerializer, RegisterDriverSerializer,
                                         RetrieveDriverSerializer, UpdateDriverSerializer, RegisterCustomerSerializer, UpdateDriverSerializerAdmin, UpdateUserProfileSerializer, UserSerializerMixin)
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
-from transport_units.models.drivers import Driver
+from transport_units.models.drivers import Driver,  TransportCategory
 from crum import get_current_user
 from rest_framework.permissions import IsAdminUser
+from rest_framework import serializers
+from users.models.users import Role
+from rest_framework.response import Response
 
 
 User = get_user_model()
@@ -97,40 +101,6 @@ class ProfileView(generics.RetrieveUpdateAPIView):
             queryset = User.objects.all()
         return queryset
     
-    
-
-@extend_schema_view(
-    patch=extend_schema(summary='Обновить профиль частично', tags=['Для админов']),
-    get=extend_schema(summary='Посмотреть профиль', tags=['Для админов']),
-)
-class ProfileAdminView(generics.RetrieveUpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UpdateUserProfileSerializer
-    http_method_names = ['get','patch']
-    permission_classes = (IsAdminUser,)
-
-    def get_serializer_class(self, *args, **kwargs):
-        user = User.objects.get(id=self.kwargs.get('pk'))
-        if self.request.method in ['PATCH']:
-            print('тут')
-            if user.role.title in ['Покупатель','Администратор']:
-                return UpdateUserProfileSerializer
-            return UpdateDriverSerializerAdmin
-        
-        else:
-            if  user.role.title in ['Покупатель','Администратор']:
-                return UserSerializerMixin
-        return RetrieveDriverSerializer
-
-    def get_queryset(self):
-        user = User.objects.get(id=self.kwargs.get('pk'))
-
-        if user.role.title == 'Водитель':
-            queryset = Driver.objects.filter(user=user)
-            return queryset
-
-        return User.objects.all()
-
 
 @extend_schema_view(
     delete=extend_schema(summary='Удалить профиль', tags=['Для админов']),
@@ -139,4 +109,51 @@ class ProfileAdminDelete(generics.DestroyAPIView):
     queryset = User.objects.all()
     permission_classes = (IsAdminUser,)
 
-    
+
+@extend_schema_view(
+    patch=extend_schema(summary='Обновить профиль частично', tags=['Для админов']),
+    get=extend_schema(summary='Посмотреть профиль', tags=['Для админов']),
+)
+class ProfileAdminView(generics.RetrieveUpdateAPIView):
+    allowed_methods = ['GET', 'PATCH']
+    queryset = User.objects.select_related('role', 'driver').all()
+    serializer_class = ProfileAdminSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_object(self):
+        user_id = self.kwargs.get('pk')
+        user = get_object_or_404(self.queryset, id=user_id)
+        return user
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user_role'] = self.get_object().role.title
+        return context
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            if self.get_object().role.title == 'Водитель':
+                return DriverProfileAdminSerializer
+            else:
+                return ProfileAdminSerializer
+                
+        elif self.request.method == 'PATCH':
+            if self.get_object().role.title == 'Водитель':
+                return DriverProfileAdminSerializer
+            else:
+                return CustomerProfileAdminSerializer
+
+        return self.serializer_class
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        serializer.save()

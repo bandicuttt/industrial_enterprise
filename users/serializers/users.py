@@ -77,6 +77,7 @@ class UpdateDriverSerializerMixin(serializers.ModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
+
         user_data = validated_data.pop('user') if 'user' in validated_data else None
         instance = super().update(instance, validated_data)
         if user_data:
@@ -269,3 +270,45 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return self.validated_data
+    
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
+
+class UserSerializer(serializers.ModelSerializer):
+    role = RoleSerializer()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'phone_number', 'user_photo', 'user_dob', 'email', 'role']
+
+class TransportCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransportCategory
+        fields = '__all__'
+
+class DriverSerializer(serializers.ModelSerializer):
+    category = TransportCategorySerializer()
+
+    class Meta:
+        model = Driver
+        fields = ['id', 'category', 'is_active', 'card_id']
+
+class ProfileAdminSerializer(serializers.ModelSerializer):
+    role = RoleSerializer()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'phone_number', 'user_photo', 'user_dob', 'email', 'role','is_active']
+
+class DriverProfileAdminSerializer(ProfileAdminSerializer):
+    driver = DriverSerializer()
+
+    class Meta(ProfileAdminSerializer.Meta):
+        fields = ProfileAdminSerializer.Meta.fields + ['driver']
+
+class CustomerProfileAdminSerializer(ProfileAdminSerializer):
+    class Meta(ProfileAdminSerializer.Meta):
+        pass

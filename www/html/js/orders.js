@@ -67,16 +67,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const output = {};
       
       output.id = input.id;
-      output.username = input.user.username;
-      output.first_name = input.user.first_name;
-      output.last_name = input.user.last_name;
-      output.phone_number = input.user.phone_number;
-      output.user_photo = input.user.user_photo;
-      output.user_dob = input.user.user_dob;
-      output.email = input.user.email;
-      output.title = input.user.role.title;
-      output.is_active = input.is_active;
-      output.card_id = input.card_id;
+      output.outlet_id = input.outlet.id;
+      output.outlet_phone = input.outlet.outlet_phone;
+      output.outlet_name = input.outlet.outlet_name;
+      output.product_name = input.product_name;
+      output.product_description = input.product_description;
+      output.product_price = input.product_price;
+      output.volume = input.volume;
+      output.weight = input.weight;
+      output.product_photo = input.product_photo;
+      output.outlet_address = input.outlet.outlet_address;
+
       
       return output;
     }
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
       XLSX.writeFile(workbook, filename);
     }
     
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+    fetch('http://127.0.0.1:8000/api/products/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -126,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
             return;
     } else {
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+      fetch('http://127.0.0.1:8000/api/products/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -137,14 +138,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter user data based on search query and category
         const filteredUsers = users.filter(user => {
           if (searchCategory === 'ID') {
-            return user.user.id.toString() === searchQuery;
-          } else if (searchCategory === 'Имя Фамилия') {
-            const fullName = `${user.user.first_name} ${user.user.last_name}`;
-            return fullName.toLowerCase().includes(searchQuery.toLowerCase());
-          } else if (searchCategory === 'Имя пользователя') {
-            return user.user.username.toLowerCase().includes(searchQuery.toLowerCase());
-          } else if (searchCategory === 'Email') {
-            return user.user.email.toLowerCase().includes(searchQuery.toLowerCase());
+            return user.id.toString() === searchQuery;
+          } else if (searchCategory === 'Торговая точка') {
+            return user.outlet.outlet_name.toLowerCase().includes(searchQuery.toLowerCase());
+          } else if (searchCategory === 'Вес') {
+            const weight = user.weight.toString()
+            return weight.toLowerCase().includes(searchQuery.toLowerCase());
+          } else if (searchCategory === 'Цена') {
+            const price = user.product_price.toString()
+            return price.toLowerCase().includes(searchQuery.toLowerCase());
           } else if (searchCategory === 'Все') {
             return true;
           } else {
@@ -156,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }); // Add closing parenthesis here
         if (filteredUsers.length === 0 && searchCategory != 'Не выбрано') {
-          $('#error-message-search').text('Пользователь не найден!').css('color', 'red');
+          $('#error-message-search').text('Товар не найден!').css('color', 'red');
             setTimeout(function() {
               $('#error-message-search').text('').css('color', '');
             }, 3000);
@@ -172,48 +174,28 @@ document.addEventListener('DOMContentLoaded', () => {
           div.setAttribute('class', 'col-lg-4');
           const count = document.querySelector('.count_drivers')
           count.setAttribute('placeholder', 'Найдено: '+filteredUsers.length);
-          if (user.user.user_photo == null) {
-            var user_photo = 'media/driver_photo.jpg'
+          if (user.product_photo == null) {
+            var user_photo = 'media/product.png'
           } else {
-            var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
+            var user_photo = '../../media/media/' + user.product_photo.split('/').pop();
           };
   
           // Populate the div element with relevant data
           div.innerHTML = `
-              <div class="text-center card-box">
-                  <div class="member-card pt-2 pb-2">
-                      <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
-                      <div class="">
-                          <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
-                          <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                          <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
-                      </div>
-                      <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
-                      <div class="mt-4">
-                          <div class="row">
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.category.title}</h4>
-                                      <p class="mb-0 text-muted">Категория прав</p>
-                                  </div>
-                              </div>
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.user.user_dob}</h4>
-                                      <p class="mb-0 text-muted">Дата рождения</p>
-                                  </div>
-                              </div>
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.user.id}</h4>
-                                      <p class="mb-0 text-muted">ID пользователя</p>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          `;
+            <div class="text-center card-box">
+                <div class="member-card pt-2 pb-2">
+                    <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
+                    <div class="">
+                        <h4>${user.product_name}</h4>
+                        <p class="text-muted">ID <span>| </span><span><a href="#" class="text-pink">${user.id}</a></span></p>
+                        <p class="text-muted">Торговая точка <span>| </span><span><a href="#" class="text-pink">${user.outlet.outlet_name}</a></span></p>
+                        <p class="text-muted">Количество <span>| </span><span><a href="#" class="text-pink">${user.volume}</a></span></p>
+                        <p class="text-muted">Вес <span>| </span><span><a href="#" class="text-pink">${user.weight}</a></span></p>
+                        <p class="text-muted">Цена <span>| </span><span><a href="#" class="text-pink">${user.product_price} $</a></span></p>
+                    </div>
+                </div>
+            </div>
+        `;
   
           // Append the created div element to the parent element
           document.getElementById('user-container').appendChild(div);
@@ -231,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }});
 
   // Make API request with token
-  fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+  fetch('http://127.0.0.1:8000/api/products/', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -247,21 +229,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return response.json();
   })
     .then(data => {
-      const dobCounts = {};
+      const productCounts = {};
 
     // loop through the driver data and extract the DOB information
-    data.forEach(driver => {
-      const dob = new Date(driver.user.date_joined).toLocaleDateString();
-      if (dob in dobCounts) {
-        dobCounts[dob]++;
+    data.forEach(product => {
+      const volume = product.volume;
+      const productName = product.product_name;
+      if (productName in productCounts) {
+        productCounts[productName] += volume;
       } else {
-        dobCounts[dob] = 1;
+        productCounts[productName] = volume;
       }
     });
 
     // create an array of labels and counts for the graph
-    const labels = Object.keys(dobCounts);
-    const counts = Object.values(dobCounts);
+    const labels = Object.keys(productCounts);
+    const counts = Object.values(productCounts);
 
     // create a bar chart using Chart.js library
     const ctx = document.getElementById('dob-chart').getContext('2d');
@@ -270,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Водители/Дата регистрации ',
+          label: 'Товар/Количество',
           data: counts,
           backgroundColor: 'rgba(54, 162, 235, 0.2)',
           borderColor: 'rgba(54, 162, 235, 1)',
@@ -292,49 +275,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Loop through the data and create a div element for each item
       users.forEach(user => {
-        console.log(user.user.user_photo)
+        console.log(user.product_photo)
         const div = document.createElement('div');
         div.setAttribute('class', 'col-lg-4');
         const count = document.querySelector('.count_drivers')
         count.setAttribute('placeholder', 'Найдено: '+data.length);
           
         // Populate the div element with relevant data
-        if (user.user.user_photo == null) {
-          var user_photo = 'media/driver_photo.jpg'
+        if (user.product_photo == null) {
+          var user_photo = 'media/product.png'
         } else {
-          var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
+          var user_photo = '../../media/media/' + user.product_photo.split('/').pop();
         };
         div.innerHTML = `
             <div class="text-center card-box">
                 <div class="member-card pt-2 pb-2">
                     <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
                     <div class="">
-                        <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
-                        <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                        <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
-                    </div>
-                    <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
-                    <div class="mt-4">
-                        <div class="row">
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.category.title}</h4>
-                                    <p class="mb-0 text-muted">Категория прав</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.user.user_dob}</h4>
-                                    <p class="mb-0 text-muted">Дата рождения</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.user.id}</h4>
-                                    <p class="mb-0 text-muted">ID пользователя</p>
-                                </div>
-                            </div>
-                        </div>
+                        <h4>${user.product_name}</h4>
+                        <p class="text-muted">ID <span>| </span><span><a href="#" class="text-pink">${user.id}</a></span></p>
+                        <p class="text-muted">Торговая точка <span>| </span><span><a href="#" class="text-pink">${user.outlet.outlet_name}</a></span></p>
+                        <p class="text-muted">Количество <span>| </span><span><a href="#" class="text-pink">${user.volume}</a></span></p>
+                        <p class="text-muted">Вес <span>| </span><span><a href="#" class="text-pink">${user.weight}</a></span></p>
+                        <p class="text-muted">Цена <span>| </span><span><a href="#" class="text-pink">${user.product_price} $</a></span></p>
                     </div>
                 </div>
             </div>
@@ -350,12 +313,12 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', (event) => {
           event.preventDefault();
           const ProfileId = event.target.id;
+          if (ProfileId === 'graphs') {
+            dobChart.scrollIntoView({ behavior: 'smooth' });
+          } else {
           window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_view.html?id='+ProfileId;
+        }
         });
-      });
-      graphsButton.addEventListener('click', function() {
-        var dobChart = document.getElementById('dob-chart');
-        dobChart.scrollIntoView({ behavior: 'smooth' });
       });
           })
     .catch(error => console.error(error));

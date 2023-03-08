@@ -48,7 +48,7 @@ $(document).ready(function() {
         };
 
         if (data.user_photo == null) {
-          var user_photo = 'https://oir.mobi/uploads/posts/2021-04/1619619348_59-oir_mobi-p-samie-milie-kotiki-zhivotnie-krasivo-foto-65.jpg'
+          var user_photo = 'media/driver_photo.jpg'
           $('.rounded-circle').attr('src', user_photo);
         } else {
           var user_photo = '../../media/media/' + data.user_photo.split('/').pop();
@@ -75,7 +75,7 @@ $(document).ready(function() {
 
         
         if (data.user_photo == null) {
-          var user_photo = 'https://oir.mobi/uploads/posts/2021-04/1619619348_59-oir_mobi-p-samie-milie-kotiki-zhivotnie-krasivo-foto-65.jpg'
+          var user_photo = 'media/driver_photo.jpg'
           $('.rounded-circle').attr('src', user_photo);
         } else {
           var user_photo = '../../media/media/' + data.user_photo.split('/').pop();

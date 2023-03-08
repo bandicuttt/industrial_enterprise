@@ -21,6 +21,11 @@ class Product(models.Model):
         on_delete=models.CASCADE,
         related_name='outlet_products'
     )
+    product_photo=models.ImageField(
+        blank=True,
+        null=True,
+        upload_to='media'
+    )
 
     def __str__(self):
         return self.product_name

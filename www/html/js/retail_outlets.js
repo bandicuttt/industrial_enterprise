@@ -67,17 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const output = {};
       
       output.id = input.id;
-      output.username = input.user.username;
-      output.first_name = input.user.first_name;
-      output.last_name = input.user.last_name;
-      output.phone_number = input.user.phone_number;
-      output.user_photo = input.user.user_photo;
-      output.user_dob = input.user.user_dob;
-      output.email = input.user.email;
-      output.title = input.user.role.title;
-      output.is_active = input.is_active;
-      output.card_id = input.card_id;
-      
+      output.outlet_photo = input.outlet_photo;
+      output.outlet_phone = input.outlet_phone;
+      output.outlet_name = input.outlet_name;
+      output.outlet_address = input.outlet_address;
       return output;
     }
     
@@ -91,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
       XLSX.writeFile(workbook, filename);
     }
     
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+    fetch('http://127.0.0.1:8000/api/retailoutlets/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -126,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
             return;
     } else {
-    fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+      fetch('http://127.0.0.1:8000/api/retailoutlets/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -137,14 +130,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter user data based on search query and category
         const filteredUsers = users.filter(user => {
           if (searchCategory === 'ID') {
-            return user.user.id.toString() === searchQuery;
-          } else if (searchCategory === 'Имя Фамилия') {
-            const fullName = `${user.user.first_name} ${user.user.last_name}`;
-            return fullName.toLowerCase().includes(searchQuery.toLowerCase());
-          } else if (searchCategory === 'Имя пользователя') {
-            return user.user.username.toLowerCase().includes(searchQuery.toLowerCase());
-          } else if (searchCategory === 'Email') {
-            return user.user.email.toLowerCase().includes(searchQuery.toLowerCase());
+            return user.id.toString() === searchQuery;
+          } else if (searchCategory === 'Название') {
+            return user.outlet_name.toLowerCase().includes(searchQuery.toLowerCase());
+          } else if (searchCategory === 'Контактный телефон') {
+            const weight = user.outlet_phone.toString()
+            return weight.toLowerCase().includes(searchQuery.toLowerCase());
+          } else if (searchCategory === 'Адрес') {
+            return user.outlet_address.toLowerCase().includes(searchQuery.toLowerCase());
           } else if (searchCategory === 'Все') {
             return true;
           } else {
@@ -156,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }); // Add closing parenthesis here
         if (filteredUsers.length === 0 && searchCategory != 'Не выбрано') {
-          $('#error-message-search').text('Пользователь не найден!').css('color', 'red');
+          $('#error-message-search').text('Торговая точка не найден!').css('color', 'red');
             setTimeout(function() {
               $('#error-message-search').text('').css('color', '');
             }, 3000);
@@ -172,48 +165,26 @@ document.addEventListener('DOMContentLoaded', () => {
           div.setAttribute('class', 'col-lg-4');
           const count = document.querySelector('.count_drivers')
           count.setAttribute('placeholder', 'Найдено: '+filteredUsers.length);
-          if (user.user.user_photo == null) {
-            var user_photo = 'media/driver_photo.jpg'
+          if (user.outlet_photo == null) {
+            var user_photo = 'media/retail_outlet.jpg'
           } else {
-            var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
+            var user_photo = '../../media/media/' + user.outlet_photo.split('/').pop();
           };
   
           // Populate the div element with relevant data
           div.innerHTML = `
-              <div class="text-center card-box">
-                  <div class="member-card pt-2 pb-2">
-                      <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
-                      <div class="">
-                          <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
-                          <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                          <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
-                      </div>
-                      <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
-                      <div class="mt-4">
-                          <div class="row">
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.category.title}</h4>
-                                      <p class="mb-0 text-muted">Категория прав</p>
-                                  </div>
-                              </div>
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.user.user_dob}</h4>
-                                      <p class="mb-0 text-muted">Дата рождения</p>
-                                  </div>
-                              </div>
-                              <div class="col-4">
-                                  <div class="mt-3">
-                                      <h4>${user.user.id}</h4>
-                                      <p class="mb-0 text-muted">ID пользователя</p>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          `;
+            <div class="text-center card-box">
+                <div class="member-card pt-2 pb-2">
+                    <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
+                    <div class="">
+                        <h4>${user.outlet_name}</h4>
+                        <p class="text-muted">ID<span> | </span><span><a href="#" class="text-pink">${user.id}</a></span></p>
+                        <p class="text-muted">Контактный номер <span>| </span><span><a href="#" class="text-pink">${user.outlet_phone}</a></span></p>
+                        <p class="text-muted">Адрес <span>| </span><span><a href="#" class="text-pink">${user.outlet_address}</a></span></p>
+                    </div>
+                </div>
+            </div>
+        `;
   
           // Append the created div element to the parent element
           document.getElementById('user-container').appendChild(div);
@@ -231,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }});
 
   // Make API request with token
-  fetch('http://127.0.0.1:8000/api/drivers/?is_active=true', {
+  fetch('http://127.0.0.1:8000/api/retailoutlets/', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -247,115 +218,45 @@ document.addEventListener('DOMContentLoaded', () => {
     return response.json();
   })
     .then(data => {
-      const dobCounts = {};
-
-    // loop through the driver data and extract the DOB information
-    data.forEach(driver => {
-      const dob = new Date(driver.user.date_joined).toLocaleDateString();
-      if (dob in dobCounts) {
-        dobCounts[dob]++;
-      } else {
-        dobCounts[dob] = 1;
-      }
-    });
-
-    // create an array of labels and counts for the graph
-    const labels = Object.keys(dobCounts);
-    const counts = Object.values(dobCounts);
-
-    // create a bar chart using Chart.js library
-    const ctx = document.getElementById('dob-chart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Водители/Дата регистрации ',
-          data: counts,
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            }
-          }]
-        }
-      }
-    });
-      // Convert API response to a JavaScript object
       const users = data;
-
-      // Loop through the data and create a div element for each item
       users.forEach(user => {
-        console.log(user.user.user_photo)
         const div = document.createElement('div');
         div.setAttribute('class', 'col-lg-4');
         const count = document.querySelector('.count_drivers')
         count.setAttribute('placeholder', 'Найдено: '+data.length);
           
         // Populate the div element with relevant data
-        if (user.user.user_photo == null) {
-          var user_photo = 'media/driver_photo.jpg'
+        if (user.outlet_photo == null) {
+          var user_photo = 'media/retail_outlet.jpg'
         } else {
-          var user_photo = '../../media/media/' + user.user.user_photo.split('/').pop();
+          var user_photo = '../../media/media/' + user.outlet_photo.split('/').pop();
         };
         div.innerHTML = `
             <div class="text-center card-box">
                 <div class="member-card pt-2 pb-2">
                     <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
                     <div class="">
-                        <h4>${user.user.first_name + ' ' + user.user.last_name}</h4>
-                        <p class="text-muted">Email <span>| </span><span><a href="#" class="text-pink">${user.user.email}</a></span></p>
-                        <p class="text-muted">Телефон <span>| </span><span><a href="#" class="text-pink">${user.user.phone_number}</a></span></p>
-                    </div>
-                    <button type="button" class="btn btn-primary mt-3 btn-rounded waves-effect w-md waves-light" id=${user.user.id}>Профиль</button>
-                    <div class="mt-4">
-                        <div class="row">
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.category.title}</h4>
-                                    <p class="mb-0 text-muted">Категория прав</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.user.user_dob}</h4>
-                                    <p class="mb-0 text-muted">Дата рождения</p>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <h4>${user.user.id}</h4>
-                                    <p class="mb-0 text-muted">ID пользователя</p>
-                                </div>
-                            </div>
-                        </div>
+                        <h4>${user.outlet_name}</h4>
+                        <p class="text-muted">ID<span> | </span><span><a href="#" class="text-pink">${user.id}</a></span></p>
+                        <p class="text-muted">Контактный номер <span>| </span><span><a href="#" class="text-pink">${user.outlet_phone}</a></span></p>
+                        <p class="text-muted">Адрес <span>| </span><span><a href="#" class="text-pink">${user.outlet_address}</a></span></p>
                     </div>
                 </div>
             </div>
         `;
-
-        // Append the created div element to the parent element
         document.getElementById('user-container').appendChild(div);
-        
         });
-      var graphsButton = document.getElementById('graphs');
       const driverButtons = document.querySelectorAll('.btn.btn-primary.mt-3.btn-rounded.waves-effect.w-md.waves-light');
       driverButtons.forEach(button => {
         button.addEventListener('click', (event) => {
           event.preventDefault();
           const ProfileId = event.target.id;
+          if (ProfileId === 'graphs') {
+            dobChart.scrollIntoView({ behavior: 'smooth' });
+          } else {
           window.location.href = 'http://localhost/industrial_enterprise/www/html/profile_view.html?id='+ProfileId;
+        }
         });
-      });
-      graphsButton.addEventListener('click', function() {
-        var dobChart = document.getElementById('dob-chart');
-        dobChart.scrollIntoView({ behavior: 'smooth' });
       });
           })
     .catch(error => console.error(error));
