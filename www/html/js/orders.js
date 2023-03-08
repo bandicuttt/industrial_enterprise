@@ -68,15 +68,32 @@ document.addEventListener('DOMContentLoaded', () => {
       
       output.id = input.id;
       output.outlet_id = input.outlet.id;
+      output.outlet_photo = input.outlet.outlet_photo;
       output.outlet_phone = input.outlet.outlet_phone;
       output.outlet_name = input.outlet.outlet_name;
-      output.product_name = input.product_name;
-      output.product_description = input.product_description;
-      output.product_price = input.product_price;
-      output.volume = input.volume;
-      output.weight = input.weight;
-      output.product_photo = input.product_photo;
       output.outlet_address = input.outlet.outlet_address;
+      output.customer_id = input.customer.id;
+      output.customer_last_login = input.customer.last_login;
+      output.customer_date_joined = input.customer.date_joined;
+      output.customer_username = input.customer.username;
+      output.customer_first_name = input.customer.first_name;
+      output.customer_last_name = input.customer.last_name;
+      output.customer_phone_number = input.customer.phone_number;
+      output.customer_user_photo = input.customer.user_photo;
+      output.customer_user_dob = input.customer.user_dob;
+      output.customer_email = input.customer.email;
+      output.customer_role_id = input.customer.role.id;
+      output.customer_role_title = input.customer.role.title;
+      output.product_id = input.product.id;
+      output.product_name = input.product.product_name;
+      output.product_price = input.product.product_price;
+      output.unit_reg_num = input.unit.registration_number;
+      output.delivery_price = input.unit.delivery_price;
+      output.driver_id = input.driver.id;
+      output.volume = input.volume;
+      output.created_at = input.created_at;
+      output.delivery_date = input.delivery_date;
+      output.delivery_address = input.delivery_address;
 
       
       return output;
@@ -92,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
       XLSX.writeFile(workbook, filename);
     }
     
-    fetch('http://127.0.0.1:8000/api/products/', {
+    fetch('http://127.0.0.1:8000/api/orders/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -127,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
             return;
     } else {
-      fetch('http://127.0.0.1:8000/api/products/', {
+      fetch('http://127.0.0.1:8000/api/orders/', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -139,14 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const filteredUsers = users.filter(user => {
           if (searchCategory === 'ID') {
             return user.id.toString() === searchQuery;
-          } else if (searchCategory === 'Торговая точка') {
-            return user.outlet.outlet_name.toLowerCase().includes(searchQuery.toLowerCase());
-          } else if (searchCategory === 'Вес') {
-            const weight = user.weight.toString()
-            return weight.toLowerCase().includes(searchQuery.toLowerCase());
-          } else if (searchCategory === 'Цена') {
-            const price = user.product_price.toString()
-            return price.toLowerCase().includes(searchQuery.toLowerCase());
           } else if (searchCategory === 'Все') {
             return true;
           } else {
@@ -179,6 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             var user_photo = '../../media/media/' + user.product_photo.split('/').pop();
           };
+          if (user.delivery_date == null) {
+            var status = 'В пути 🕔'
+          } else {
+            var status = user.delivery_date
+          }
   
           // Populate the div element with relevant data
           div.innerHTML = `
@@ -186,12 +200,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="member-card pt-2 pb-2">
                     <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
                     <div class="">
-                        <h4>${user.product_name}</h4>
-                        <p class="text-muted">ID <span>| </span><span><a href="#" class="text-pink">${user.id}</a></span></p>
-                        <p class="text-muted">Торговая точка <span>| </span><span><a href="#" class="text-pink">${user.outlet.outlet_name}</a></span></p>
+                        <h4>ID: ${user.id}</h4>
+                        <p class="text-muted">Товар: <span>| </span><span><a href="#" class="text-pink">${user.product.product_name}</a></span></p>
                         <p class="text-muted">Количество <span>| </span><span><a href="#" class="text-pink">${user.volume}</a></span></p>
-                        <p class="text-muted">Вес <span>| </span><span><a href="#" class="text-pink">${user.weight}</a></span></p>
-                        <p class="text-muted">Цена <span>| </span><span><a href="#" class="text-pink">${user.product_price} $</a></span></p>
+                        <p class="text-muted">Создан <span>| </span><span><a href="#" class="text-pink">${user.created_at}</a></span></p>
+                        <p class="text-muted">Доставлен <span>| </span><span><a href="#" class="text-pink">${status}</a></span></p>
+                        <p class="text-muted">Адрес доставки <span>| </span><span><a href="#" class="text-pink">${user.delivery_address}</a></span></p>
+                        <p class="text-muted">Контактный телефон <span>| </span><span><a href="#" class="text-pink">${user.customer.phone_number}</a></span></p>
+                        <p class="text-muted">Курьер <span>| </span><span><a href="#" class="text-pink">${user.driver.user.first_name + ' ' + user.driver.user.last_name}</a></span></p>
+                        <p class="text-muted">Вес <span>| </span><span><a href="#" class="text-pink">${user.volume * user.product.weight} кг</a></span></p>
+                        <p class="text-muted">Стоимость <span>| </span><span><a href="#" class="text-pink">${Number(user.volume) * Number(user.product.product_price) + Number(user.unit.delivery_price)} $</a></span></p>
                     </div>
                 </div>
             </div>
@@ -213,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }});
 
   // Make API request with token
-  fetch('http://127.0.0.1:8000/api/products/', {
+  fetch('http://127.0.0.1:8000/api/orders/', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -287,17 +305,26 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           var user_photo = '../../media/media/' + user.product_photo.split('/').pop();
         };
+        if (user.delivery_date == null) {
+          var status = 'В пути 🕔'
+        } else {
+          var status = user.delivery_date
+        }
         div.innerHTML = `
             <div class="text-center card-box">
                 <div class="member-card pt-2 pb-2">
                     <div class="thumb-lg member-thumb mx-auto"><img src="${user_photo}" class="rounded-circle img-thumbnail" alt="profile-image"></div>
                     <div class="">
-                        <h4>${user.product_name}</h4>
-                        <p class="text-muted">ID <span>| </span><span><a href="#" class="text-pink">${user.id}</a></span></p>
-                        <p class="text-muted">Торговая точка <span>| </span><span><a href="#" class="text-pink">${user.outlet.outlet_name}</a></span></p>
+                        <h4>ID: ${user.id}</h4>
+                        <p class="text-muted">Товар: <span>| </span><span><a href="#" class="text-pink">${user.product.product_name}</a></span></p>
                         <p class="text-muted">Количество <span>| </span><span><a href="#" class="text-pink">${user.volume}</a></span></p>
-                        <p class="text-muted">Вес <span>| </span><span><a href="#" class="text-pink">${user.weight}</a></span></p>
-                        <p class="text-muted">Цена <span>| </span><span><a href="#" class="text-pink">${user.product_price} $</a></span></p>
+                        <p class="text-muted">Создан <span>| </span><span><a href="#" class="text-pink">${user.created_at}</a></span></p>
+                        <p class="text-muted">Доставлен <span>| </span><span><a href="#" class="text-pink">${status}</a></span></p>
+                        <p class="text-muted">Адрес доставки <span>| </span><span><a href="#" class="text-pink">${user.delivery_address}</a></span></p>
+                        <p class="text-muted">Контактный телефон <span>| </span><span><a href="#" class="text-pink">${user.customer.phone_number}</a></span></p>
+                        <p class="text-muted">Курьер <span>| </span><span><a href="#" class="text-pink">${user.driver.user.first_name + ' ' + user.driver.user.last_name}</a></span></p>
+                        <p class="text-muted">Вес <span>| </span><span><a href="#" class="text-pink">${user.volume * user.product.weight} кг</a></span></p>
+                        <p class="text-muted">Стоимость <span>| </span><span><a href="#" class="text-pink">${Number(user.volume) * Number(user.product.product_price) + Number(user.unit.delivery_price)} $</a></span></p>
                     </div>
                 </div>
             </div>
