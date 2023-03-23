@@ -1,5 +1,5 @@
 from django.urls import path, include
-from users.views.users import (RegisterView, RegisterDriverView,
+from users.views.users import (CreateOrderView, FinishOrderView, RegisterView, RegisterDriverView,
                                 ProfileView, RegisterCustomerView,
                                 GetAllCustomersView, ProfileAdminView, ProfileAdminDelete)
 from rest_framework.routers import DefaultRouter
@@ -16,6 +16,8 @@ urlpatterns = [
     path('customers/', GetAllCustomersView.as_view(), name='get_customers'),
     path('admin/profile-usr/<int:pk>/', ProfileAdminView.as_view(), name='usr-profile-for-admin'),
     path('admin/profile-usr-del/<int:pk>/', ProfileAdminDelete.as_view(), name='del_usr-profile-for-admin'),
+    path('admin/order/<int:pk>/', FinishOrderView.as_view(), name='finish-order'),
+    path('order/create_order/<int:customer_id>/<int:product_id>/<int:volume>/<str:delivery_address>/', CreateOrderView.as_view(), name='create_order'),
 ]
 
 # urlpatterns += router.urls

@@ -100,7 +100,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         else:
             queryset = User.objects.all()
         return queryset
-    
+
 
 @extend_schema_view(
     delete=extend_schema(summary='Удалить профиль', tags=['Для админов']),
@@ -157,3 +157,165 @@ class ProfileAdminView(generics.RetrieveUpdateAPIView):
 
     def perform_update(self, serializer):
         serializer.save()
+
+
+
+
+from django.db.models import Sum
+from django.http import Http404
+from rest_framework import generics
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema_view
+from retail_outlets.models.retail_outlets import RetailOutlet
+from orders.models.orders import Order
+from retail_outlets.models.products import Product
+from transport_units.models.drivers import Driver
+from transport_units.models.tranport_categories import TransportCategory
+from transport_units.models.transport_units import TransportUnit
+from rest_framework import serializers
+from datetime import datetime, timezone
+from rest_framework.exceptions import ValidationError
+from django.db import transaction
+from django.shortcuts import get_object_or_404
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    delivery_date = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+    def get_delivery_date(self, obj):
+        return obj.delivery_date.date() if obj.delivery_date else None
+
+    def update(self, instance, validated_data):
+        instance.delivery_date = timezone.now()
+        instance.save()
+        return instance
+
+@extend_schema_view(
+    post=extend_schema(summary='Заврешить заказ', tags=['Заказы']),
+)
+class FinishOrderView(generics.CreateAPIView):
+    serializer_class = OrderSerializer
+
+    def post(self, request, *args, **kwargs):
+        order_id = self.kwargs['pk']
+        order = get_object_or_404(Order, id=order_id)
+        order.delivery_date = datetime.now()
+        order.save()
+        driver = order.driver
+        driver.is_active = False
+        driver.save()
+        serializer = self.serializer_class(order)
+        return Response(serializer.data)
+
+class CreateOrderSerializer(serializers.ModelSerializer):
+    product_id = serializers.IntegerField()
+    customer_id = serializers.IntegerField()
+    volume = serializers.IntegerField()
+    delivery_address = serializers.CharField()
+
+    class Meta:
+        model = Order
+        fields = ['product_id', 'customer_id', 'volume', 'delivery_address']
+
+    def create(self, validated_data):
+        product_id = validated_data.pop('product_id')
+        customer_id = validated_data.pop('customer_id')
+        volume = validated_data.pop('volume')
+        delivery_address = validated_data.pop('delivery_address')
+        outlet_id = self.context.get('outlet_id')
+        
+        try:
+            customer = User.objects.get(id=customer_id)
+        except User.DoesNotExist:
+            raise ValidationError('Пользователь не найден')
+
+        # Calculate the total weight of the order
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            raise ValidationError('Товар не найден')
+        
+        if product.volume < volume:
+            raise ValidationError('Не хватает товара')
+
+        outlet_id = product.outlet
+        total_weight = product.weight * volume
+        
+        # Select a suitable transport unit for the order
+        transport_unit = TransportUnit.objects.filter(carrying_capacity__gte=total_weight).order_by('carrying_capacity').first()
+        if not transport_unit:
+            raise ValidationError('Нет подходящих машин')
+        
+        # Select a suitable driver for the transport unit's category
+        driver = Driver.objects.filter(category=transport_unit.license_category, is_active=False).first()
+        if not driver:
+            raise ValidationError('Нет подходящего водителя')
+        
+        order = Order.objects.create(
+            product_id=product_id,
+            customer_id=customer_id,
+            volume=volume,
+            delivery_address=delivery_address,
+            unit=transport_unit,
+            driver=driver,
+            outlet=outlet_id,
+        )
+        
+        driver.is_active = True
+        product.volume = product.volume - volume
+        driver.save()
+        product.save()
+        
+        return order
+
+@extend_schema_view(
+    post=extend_schema(summary='Создать заказ', tags=['Заказы']),
+)
+class CreateOrderView(generics.CreateAPIView):
+    serializer_class = CreateOrderSerializer
+
+    def perform_create(self, serializer):
+        # Get the selected product and calculate the total weight
+        product_id = self.kwargs.get('product_id')
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            raise ValidationError('Товар не найден')
+        total_weight = product.weight * self.kwargs.get('volume')
+
+        # Get the suitable transport unit for the total weight
+        transport_unit = TransportUnit.objects.filter(
+            carrying_capacity__gte=total_weight
+        ).order_by('carrying_capacity').first()
+        if not transport_unit:
+            raise ValidationError('Нет подходящих машин')
+
+        # Get the suitable driver for the transport unit's category
+        driver = Driver.objects.filter(
+        category=transport_unit.license_category
+        ).filter(
+            is_active=False
+        ).first()
+        if not driver:
+            raise ValidationError('Нет подходящего водителя')
+
+        serializer.validated_data['created_at'] = datetime.now()
+        serializer.validated_data['driver'] = driver
+        serializer.save(
+            outlet_id=product.outlet,
+            customer_id=self.kwargs.get('customer_id'),
+            product=product,
+            volume=self.kwargs.get('volume'),
+            delivery_address=self.kwargs.get('delivery_address'),
+            unit=transport_unit,
+            driver=driver, 
+        )
+
+        driver.is_active = True
+        product.volume = product.volume - self.kwargs.get('volume')
+        driver.save()
+        product.save()

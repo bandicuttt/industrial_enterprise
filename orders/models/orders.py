@@ -36,6 +36,7 @@ class Order(models.Model):
     volume=models.PositiveSmallIntegerField()
     created_at=models.DateField(
         null=False,
+        auto_now_add=True,
     )
     delivery_date=models.DateField(
         null=True,

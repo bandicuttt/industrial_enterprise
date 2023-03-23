@@ -9,6 +9,10 @@ body{
     background-color: #ffffff;
 }
 
+.main-breadcrumb-driver {
+    display: none;
+}
+
 .banner {
     padding-bottom: 2%;
     
